@@ -29,16 +29,16 @@ COPY composer.json composer.lock ./
 # --no-scripts evita que se ejecuten scripts de composer que podrían fallar si .env no existe aún.
 RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
 
-# --- Etapa 2: Construcción de Assets (Node.js con Yarn) ---
-# Usamos Node 18-alpine, una versión LTS común y ligera.
-FROM node:18-alpine AS assets_stage
+# --- Etapa 2: Construcción de Assets (Node.js) ---
+# Usando Node 22-alpine según solicitado.
+FROM node:22-alpine AS assets_stage
 WORKDIR /app
 
 # Copiar archivos de definición de dependencias de frontend.
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 
-# Instalar dependencias usando Yarn (ya que tienes yarn.lock).
-RUN yarn install --frozen-lockfile
+# Instalar dependencias usando NPM de forma limpia desde el lockfile.
+RUN npm ci
 
 # ANTES de copiar el resto del código y construir los assets,
 # copiar la carpeta 'vendor' desde la etapa 'vendor_stage'.
@@ -51,8 +51,8 @@ COPY --from=vendor_stage /app/vendor /app/vendor
 # usamos la copia limpia de vendor_stage).
 COPY . .
 
-# Ejecutar el script de construcción de assets.
-RUN yarn run build
+# Ejecutar el script de construcción de assets usando NPM.
+RUN npm run build
 
 # --- Etapa 3: Imagen Final de Producción ---
 # Imagen base de PHP 8.1 con FPM sobre Alpine Linux (Lakasir requiere PHP 8.1).
@@ -111,6 +111,8 @@ RUN rm -rf /var/cache/apk/*
 # Copiar el código de la aplicación.
 COPY . .
 
+COPY .env.example /var/www/html/.env.example
+
 # Copiar las dependencias de Composer desde la etapa 'vendor_stage'.
 COPY --from=vendor_stage /app/vendor /var/www/html/vendor
 
@@ -135,11 +137,23 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 RUN echo "#!/bin/sh" > /usr/local/bin/docker-entrypoint.sh \
     && echo "set -e" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "echo 'Running Laravel entrypoint script...'" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "echo 'Listing /var/www/html contents:'" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "ls -la /var/www/html/" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "echo 'Ensuring SQLite database file exists...'" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "mkdir -p /var/www/html/database" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "touch /var/www/html/database/database.sqlite" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "echo 'Ensuring .env file exists...'" >> /usr/local/bin/docker-entrypoint.sh \
-    && echo "if [ ! -f /var/www/html/.env ]; then echo 'Creating .env file from .env.example...'; cp /var/www/html/.env.example /var/www/html/.env; else echo '.env file already exists.'; fi" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "if [ ! -f /var/www/html/.env ]; then" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "  if [ -f /var/www/html/.env.example ]; then" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "    echo 'Found .env.example, copying to .env...';" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "    cp /var/www/html/.env.example /var/www/html/.env;" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "  else" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "    echo '.env.example NOT found, creating empty .env file...';" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "    touch /var/www/html/.env;" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "  fi" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "else" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "  echo '.env file already exists.';" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "fi" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "echo 'Clearing Laravel cache...'" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "php artisan optimize:clear" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "if [ -z \"\$APP_KEY\" ] || [ \"\$APP_KEY\" = \"\" ]; then echo 'APP_KEY is not set or is empty, generating...'; php artisan key:generate --force; else echo 'APP_KEY is set, not generating.'; fi" >> /usr/local/bin/docker-entrypoint.sh \
@@ -153,6 +167,9 @@ RUN echo "#!/bin/sh" > /usr/local/bin/docker-entrypoint.sh \
     && echo "  echo 'Non-production environment (\$APP_ENV), skipping production caches.'" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "fi" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "php artisan storage:link || echo 'Storage link already exists or failed to create.'" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "echo 'Publishing Filament and Livewire assets...'" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "php artisan filament:assets" >> /usr/local/bin/docker-entrypoint.sh \
+    && echo "php artisan livewire:publish --assets" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "echo 'Starting Supervisor...'" >> /usr/local/bin/docker-entrypoint.sh \
     && echo "/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf" >> /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
