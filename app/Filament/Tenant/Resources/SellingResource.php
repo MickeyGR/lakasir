@@ -62,21 +62,25 @@ class SellingResource extends Resource
                 TextColumn::make('grand_total_price')
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('total_price')
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('tax_price')
                     ->translateLabel()
                     ->sortable()
                     ->visible(feature(ProductInitialPrice::class))
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('total_cost')
                     ->translateLabel()
                     ->sortable()
                     ->visible(feature(ProductInitialPrice::class))
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
             ])
             ->searchPlaceholder('Search (Code, User, Customer Number')
             ->header(view('filament.tenant.resources.sellings.headers.overview', [
