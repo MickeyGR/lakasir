@@ -47,10 +47,12 @@ class StocksRelationManager extends RelationManager
                     ->translateLabel(),
                 Tables\Columns\TextColumn::make('initial_price')
                     ->translateLabel()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 Tables\Columns\TextColumn::make('selling_price')
                     ->translateLabel()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
