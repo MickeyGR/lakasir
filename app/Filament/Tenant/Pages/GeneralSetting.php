@@ -110,6 +110,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
                                     'IDR' => 'IDR',
                                     'MXN' => 'MXN',
                                     'USD' => 'USD',
+                                    'NIO' => 'NIO',
                                 ])
                                 ->translateLabel(),
                             Select::make('minimum_stock_nofication')

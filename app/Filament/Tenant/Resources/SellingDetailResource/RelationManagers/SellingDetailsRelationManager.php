@@ -39,26 +39,30 @@ class SellingDetailsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('price')
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 Tables\Columns\TextColumn::make('discount')
                     ->getStateUsing(fn (SellingDetail $sellingDetail) => Number::currency(
                         $sellingDetail->discount_price, Setting::get('curerncy', 'IDR'))
                     )
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 Tables\Columns\TextColumn::make('discount_price')
                     ->getStateUsing(fn (SellingDetail $sellingDetail) => Number::currency(
                         $sellingDetail->price - $sellingDetail->discount_price, Setting::get('curerncy', 'IDR'))
                     )
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 Tables\Columns\TextColumn::make('cost')
                     ->translateLabel()
                     ->visible(feature(ProductInitialPrice::class))
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
             ])
             ->paginated(false);
     }

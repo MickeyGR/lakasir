@@ -66,6 +66,7 @@ class Profile extends Model
                     'id' => 'Bahasa Indonesia',
                     'en' => 'English',
                     'es' => 'Español',
+                    'es_NI' => 'Español (Nicaragua)',
                 ]),
             FileUpload::make('photo')
                 ->visible(feature('edit-profile'))

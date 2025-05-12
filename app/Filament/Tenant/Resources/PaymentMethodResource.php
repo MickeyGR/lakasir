@@ -2,9 +2,11 @@
 
 namespace App\Filament\Tenant\Resources;
 
+use App\Features\PaymentMethod as FeaturesPaymentMethod;
 use App\Filament\Tenant\Resources\PaymentMethodResource\Pages;
 use App\Models\Tenants\PaymentMethod;
 use App\Traits\HasTranslatableResource;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
@@ -13,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Laravel\Pennant\Feature;
 
 class PaymentMethodResource extends Resource
 {
@@ -111,5 +114,10 @@ class PaymentMethodResource extends Resource
             'create' => Pages\CreatePaymentMethod::route('/create'),
             'edit' => Pages\EditPaymentMethod::route('/{record}/edit'),
         ];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return ! (! Feature::active(FeaturesPaymentMethod::class)) ?? Filament::auth()->user()->can('read payment method');
     }
 }

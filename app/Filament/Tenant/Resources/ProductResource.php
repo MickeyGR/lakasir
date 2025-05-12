@@ -98,16 +98,19 @@ class ProductResource extends Resource
                     ->visible(Feature::active(ProductInitialPrice::class))
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('selling_price')
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('net_profit')
                     ->visible(Feature::active(ProductInitialPrice::class))
                     ->translateLabel()
                     ->sortable()
-                    ->money(Setting::get('currency', 'IDR')),
+                    ->money(Setting::get('currency', 'IDR'))
+,
                 TextColumn::make('type')
                     ->visible(Feature::active(ProductType::class))
                     ->translateLabel(),
@@ -223,10 +226,12 @@ class ProductResource extends Resource
                 ->translateLabel(),
             Infolists\Components\TextEntry::make('initial_price')
                 ->money(Setting::get('currency', 'IDR'))
+
                 ->size(TextEntry\TextEntrySize::Large)
                 ->translateLabel(),
             Infolists\Components\TextEntry::make('selling_price')
                 ->money(Setting::get('currency', 'IDR'))
+
                 ->size(TextEntry\TextEntrySize::Large)
                 ->translateLabel(),
         ]);
