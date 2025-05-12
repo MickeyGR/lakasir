@@ -18,6 +18,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // if ($this->app->isLocal()) {
+        //     // Registrar proveedores solo para el entorno local
+        //     $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
+        //     // $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class); // Si también usas Debugbar
+        // }
         $this->app->bind(Authenticatable::class, User::class);
 
         if ($this->app->environment('local', 'development') && class_exists(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class)) {
