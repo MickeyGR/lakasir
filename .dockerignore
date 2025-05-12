@@ -19,9 +19,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Archivo .env local (se gestiona con --env-file o variables de entorno de Railway)
-.env
-.env.*
-!.env.example # Excluye .env y .env.* PERO incluye .env.example
+!.env.example # PRIMERO: Aseguramos que .env.example NO se ignore
+.env          # Luego, ignoramos .env
+.env.* # Luego, ignoramos otros .env.loquesea
 
 # Otros archivos específicos de IDE o sistema operativo
 .DS_Store
