@@ -13,6 +13,9 @@ if [[ "$MAINTENANCE_MODE" = "true" ]]; then
   php artisan down || echo "Fallo al entrar en modo mantenimiento (puede que ya esté abajo o APP_KEY no lista)."
 fi
 
+# Build assets using NPM
+npm run build
+
 # Asegurar que APP_KEY existe (Railway debería proveer esto como variable de entorno)
 # Si APP_KEY es una variable de entorno, key:generate no es estrictamente necesario aquí
 # a menos que quieras que se escriba en un archivo .env que el buildpack genere.
