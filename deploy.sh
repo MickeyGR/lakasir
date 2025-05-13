@@ -8,10 +8,10 @@ echo "--- Iniciando script de despliegue de Lakasir ---"
 
 # Poner la aplicación en modo mantenimiento (opcional, si las migraciones son largas)
 # Esto requiere que la variable de entorno MAINTENANCE_MODE esté disponible si se quiere controlar.
-# if [[ "$MAINTENANCE_MODE" = "true" ]]; then
-#   echo "Entrando en modo mantenimiento..."
-#   php artisan down || echo "Fallo al entrar en modo mantenimiento (puede que ya esté abajo o APP_KEY no lista)."
-# fi
+if [[ "$MAINTENANCE_MODE" = "true" ]]; then
+  echo "Entrando en modo mantenimiento..."
+  php artisan down || echo "Fallo al entrar en modo mantenimiento (puede que ya esté abajo o APP_KEY no lista)."
+fi
 
 # Asegurar que APP_KEY existe (Railway debería proveer esto como variable de entorno)
 # Si APP_KEY es una variable de entorno, key:generate no es estrictamente necesario aquí
@@ -19,8 +19,8 @@ echo "--- Iniciando script de despliegue de Lakasir ---"
 # La mayoría de las plataformas PaaS inyectan APP_KEY como variable de entorno.
 # Comentado por ahora, ya que el entrypoint de nuestro Dockerfile lo hacía y
 # en un escenario sin Dockerfile, se espera que Railway lo provea.
-# echo "Verificando APP_KEY..."
-# php artisan key:generate --force --no-interaction # El --force es para evitar prompts
+echo "Verificando APP_KEY..."
+php artisan key:generate --force --no-interaction # El --force es para evitar prompts
 
 echo "Limpiando cachés de Laravel..."
 php artisan optimize:clear
@@ -60,10 +60,10 @@ php artisan storage:link || echo "Enlace de storage ya existe o falló al crear 
 # echo "Ejecutando seeders..."
 # php artisan db:seed --force
 
-# Salir de modo mantenimiento (si se activó)
-# if [[ "$MAINTENANCE_MODE" = "true" ]]; then # O siempre intentar levantarlo si no se controla con variable
-#   echo "Saliendo de modo mantenimiento..."
-#   php artisan up || echo "Fallo al salir de modo mantenimiento."
-# fi
+Salir de modo mantenimiento (si se activó)
+if [[ "$MAINTENANCE_MODE" = "true" ]]; then # O siempre intentar levantarlo si no se controla con variable
+  echo "Saliendo de modo mantenimiento..."
+  php artisan up || echo "Fallo al salir de modo mantenimiento."
+fi
 
 echo "--- Script de despliegue de Lakasir completado ---"
