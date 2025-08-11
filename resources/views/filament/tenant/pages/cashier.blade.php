@@ -151,6 +151,19 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
           class="py-4 px-2 bg-lakasir-primary text-white rounded-lg w-full"
           x-on:mousedown="$dispatch('open-modal', {id: 'proceed-the-payment'})"
           >{{ __('Proceed to payment') }}</button>
+          
+          <button
+          type="button"
+          wire:click="generateProforma"
+          wire:loading.attr="disabled"
+          class="py-4 px-2 mt-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg w-full flex justify-center items-center">
+          <span wire:loading.remove wire:target="generateProforma">
+            {{ __('Generar Proforma') }}
+          </span>
+          <div wire:loading wire:target="generateProforma">
+            <x-filament::loading-indicator class="h-5 w-5" />
+          </div>
+        </button>
       </div>
     </div>
   </div>

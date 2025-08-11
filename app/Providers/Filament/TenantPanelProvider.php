@@ -70,6 +70,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\View\View;
 use Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper;
+use App\Filament\Tenant\Resources\ProformaResource; 
 
 class TenantPanelProvider extends PanelProvider
 {
@@ -169,6 +170,7 @@ class TenantPanelProvider extends PanelProvider
             $this->generateNavigationItem(Cashier::class),
             $this->generateNavigationItem(POS::class, PosV2::class),
             $this->generateNavigationItem(SellingResource::class),
+            $this->generateNavigationItem(ProformaResource::class),
             $this->generateNavigationItem(SupplierResource::class, Supplier::class),
             $this->generateNavigationItem(MemberResource::class, Member::class),
             $this->generateNavigationItem(PaymentMethodResource::class, PaymentMethod::class),
