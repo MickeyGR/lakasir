@@ -141,7 +141,19 @@
           </div>
         </div>
         <button class="w-full rounded-lg bg-lakasir-primary px-2 py-4 text-white"
-          x-on:mousedown="$dispatch('open-modal', {id: 'proceed-the-payment'})">{{ __('Proceed to payment') }}</button>
+          x-on:mousedown="$dispatch('open-modal', {id: 'proceed-the-payment'})">
+          {{ __('Proceed to payment') }}
+        </button>
+
+        <button type="button" wire:click="generateProforma" wire:loading.attr="disabled"
+          class="mt-2 flex w-full items-center justify-center rounded-lg bg-blue-500 px-2 py-4 text-white hover:bg-blue-600">
+          <span wire:loading.remove wire:target="generateProforma">
+            {{ __('Generar Proforma') }}
+          </span>
+          <div wire:loading wire:target="generateProforma">
+            <x-filament::loading-indicator class="h-5 w-5" />
+          </div>
+        </button>
       </div>
     </div>
   </div>

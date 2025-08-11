@@ -34,6 +34,8 @@ use Illuminate\Support\Collection as CollectionSupport;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Models\Tenants\Proforma;
+use App\Models\Tenants\ProformaDetail;
 
 class Cashier extends Page implements HasForms, HasTable
 {
@@ -334,5 +336,46 @@ class Cashier extends Page implements HasForms, HasTable
         });
 
         $this->total_price = $this->sub_total + ($this->sub_total * $this->tax / 100) - $this->discount_price;
+    }
+
+     public function generateProforma(): void
+    {
+        // 1. Validar que el carrito no esté vacío
+        if ($this->cartItems->isEmpty()) {
+            Notification::make()
+                ->title('El carrito está vacío')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        // 2. Crear la proforma
+        $proforma = Proforma::create([
+            'user_id' => auth()->id(),
+            'member_id' => $this->cartDetail['member_id'] ?? null,
+            'number' => 'PRO-' . date('YmdHis'), // Generador de número simple, puedes mejorarlo
+            'total_price' => $this->total_price,
+            'status' => 'pending',
+        ]);
+
+        // 3. Guardar los detalles de la proforma
+        foreach ($this->cartItems as $item) {
+            ProformaDetail::create([
+                'proforma_id' => $proforma->id,
+                'product_id' => $item->product_id,
+                'qty' => $item->qty,
+                'price' => $item->price,
+                'discount_price' => $item->discount_price,
+            ]);
+        }
+
+        // 4. Limpiar el carrito
+        $this->clearCart();
+
+        // 5. Enviar una notificación de éxito
+        Notification::make()
+            ->title('Proforma generada con éxito')
+            ->success()
+            ->send();
     }
 }
