@@ -247,11 +247,11 @@ class Cashier extends Page implements HasForms, HasTable
         $validator = Validator::make($request, [
             'fee' => ['numeric'],
             'payment_method_id' => ['required'],
-            'member_id' => Rule::requiredIf(fn () => $pMethod->is_credit),
-            'due_date' => Rule::requiredIf(fn () => $pMethod->is_credit),
+            'member_id' => Rule::requiredIf(fn() => $pMethod->is_credit),
+            'due_date' => Rule::requiredIf(fn() => $pMethod->is_credit),
             'payed_money' => [
                 ! $pMethod->is_credit ? 'gte:total_price' : null,
-                Rule::requiredIf(fn () => ! $pMethod->is_credit),
+                Rule::requiredIf(fn() => ! $pMethod->is_credit),
             ],
             'total_price' => ['required_if:friend_price,true', 'numeric'],
             'total_qty' => ['required_if:friend_price,true', 'numeric', new ShouldSameWithSellingDetail('qty', $request['products'])],
@@ -338,7 +338,7 @@ class Cashier extends Page implements HasForms, HasTable
         $this->total_price = $this->sub_total + ($this->sub_total * $this->tax / 100) - $this->discount_price;
     }
 
-     public function generateProforma(): void
+    public function generateProforma(): void
     {
         // 1. Validar que el carrito no esté vacío
         if ($this->cartItems->isEmpty()) {
@@ -358,13 +358,16 @@ class Cashier extends Page implements HasForms, HasTable
             'status' => 'pending',
         ]);
 
-        // 3. Guardar los detalles de la proforma
+        // 3. Guardar los detalles de la proforma (CON LA CORRECCIÓN)
         foreach ($this->cartItems as $item) {
+            // Determinamos el precio unitario correcto, igual que en la función de calcular total.
+            $unitPrice = $item->priceUnit?->selling_price ?? $item->price;
+
             ProformaDetail::create([
                 'proforma_id' => $proforma->id,
                 'product_id' => $item->product_id,
                 'qty' => $item->qty,
-                'price' => $item->price,
+                'price' => $unitPrice, // <-- LA LÍNEA CORREGIDA
                 'discount_price' => $item->discount_price,
             ]);
         }

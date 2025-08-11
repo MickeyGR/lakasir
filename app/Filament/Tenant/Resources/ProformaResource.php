@@ -70,7 +70,7 @@ class ProformaResource extends Resource
                             ->searchable()
                             ->required()
                             ->reactive()
-                            ->afterStateUpdated(fn ($state, callable $set) => $set('price', Product::find($state)?->price ?? 0)),
+                            ->afterStateUpdated(fn($state, callable $set) => $set('price', Product::find($state)?->price ?? 0)),
                         TextInput::make('qty')->label('Cantidad')->numeric()->default(1)->required(),
                         TextInput::make('price')->label('Precio')->numeric()->required(),
                     ])->columns(3)->columnSpan('full'),
@@ -86,7 +86,7 @@ class ProformaResource extends Resource
                 TextColumn::make('total_price')->money('NIO')->sortable(),
                 TextColumn::make('status')
                     ->badge() // <--- CAMBIO AQUÍ
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'pending' => 'warning',
                         'converted' => 'success',
                         'cancelled' => 'danger',
@@ -94,7 +94,9 @@ class ProformaResource extends Resource
                 TextColumn::make('created_at')->label('Fecha')->dateTime()->sortable(),
             ])
             ->actions([
-                Actions\ViewAction::make(),
+                //Actions\ViewAction::make(),
+                Actions\ViewAction::make()->url(fn($record) => self::getUrl('view', ['record' => $record])),
+
                 Actions\EditAction::make(),
             ]);
     }
@@ -109,7 +111,7 @@ class ProformaResource extends Resource
                         TextEntry::make('number')->label('Número'),
                         TextEntry::make('status')
                             ->badge() // <--- Y CAMBIO AQUÍ
-                            ->color(fn (string $state): string => match ($state) {
+                            ->color(fn(string $state): string => match ($state) {
                                 'pending' => 'warning',
                                 'converted' => 'success',
                                 'cancelled' => 'danger',
@@ -140,7 +142,7 @@ class ProformaResource extends Resource
         return [
             'index' => Pages\ListProformas::route('/'),
             'create' => Pages\CreateProforma::route('/create'),
-            //'view' => Pages\ViewProforma::route('/{record}'),
+            'view' => Pages\ViewProforma::route('/{record}'),
             'edit' => Pages\EditProforma::route('/{record}/edit'),
         ];
     }
