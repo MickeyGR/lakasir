@@ -84,7 +84,9 @@ class ProductResource extends Resource
                     ->searchable()
                     ->toggleable()
                     ->translateLabel(),
-                TextColumn::make('stock')
+                TextColumn::make('stocks_sum_stock')
+                    ->sum('stocks', 'stock')
+                    ->label("stocks")
                     ->toggleable()
                     ->translateLabel()
                     ->visible(Feature::active(ProductStock::class))
@@ -204,10 +206,12 @@ class ProductResource extends Resource
                 ->translateLabel(),
             Infolists\Components\TextEntry::make('barcode')
                 ->translateLabel(),
-            Infolists\Components\TextEntry::make('stock')
-                ->icon(fn (int $state) => $state <= Setting::get('minimum_stock_nofication', 0) ? 'heroicon-s-exclamation-triangle' : '')
-                ->iconColor(Color::Yellow)
-                ->translateLabel(),
+//            Infolists\Components\TextEntry::make('stocks_sum_stock')
+//                                    ->sum('stocks', 'stock')
+//                                    ->label("stocks")
+//                ->icon(fn (int $state) => $state <= Setting::get('minimum_stock_nofication', 0) ? 'heroicon-s-exclamation-triangle' : '')
+//                ->iconColor(Color::Yellow)
+//                ->translateLabel(),
             Infolists\Components\TextEntry::make('is_non_stock')
                 ->badge()
                 ->getStateUsing(function (Product $product) {
