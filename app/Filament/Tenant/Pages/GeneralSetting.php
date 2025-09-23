@@ -289,7 +289,6 @@ class GeneralSetting extends Page implements HasActions, HasForms
                     'photo' => null,
                 ]);
             }
-
         }
 
         Notification::make()
