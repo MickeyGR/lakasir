@@ -180,7 +180,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         $this->validate([
             'about.shop_name' => 'required',
             'about.shop_location' => 'required',
-            'about.currency' => 'required',
+            //'about.currency' => 'required',
             // 'data.photo' => 'required',
         ]);
 
@@ -287,7 +287,6 @@ class GeneralSetting extends Page implements HasActions, HasForms
                     'photo' => null,
                 ]);
             }
-
         }
 
         Notification::make()
