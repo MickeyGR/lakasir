@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
         'password',
         'fcm_token',
         'is_owner',
+        'dark_mode_enabled',
     ];
 
     /**
