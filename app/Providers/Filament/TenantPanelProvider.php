@@ -70,7 +70,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\View\View;
 use Stancl\Tenancy\Bootstrappers\DatabaseTenancyBootstrapper;
-use App\Filament\Tenant\Resources\ProformaResource; 
+use App\Filament\Tenant\Resources\ProformaResource;
 
 class TenantPanelProvider extends PanelProvider
 {
@@ -128,7 +128,7 @@ class TenantPanelProvider extends PanelProvider
         $panel
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->sidebarFullyCollapsibleOnDesktop()
-            ->darkMode(config('app.dark_mode', true))
+            ->darkMode(true, false)
             ->databaseNotifications()
             ->id('tenant')
             ->viteTheme('resources/css/filament/tenant/theme.css')
