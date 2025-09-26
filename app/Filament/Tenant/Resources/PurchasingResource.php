@@ -73,6 +73,7 @@ class PurchasingResource extends Resource
                     ->native(false)
                     ->required(),
                 FileUpload::make('image')
+                    ->disk('public')
                     ->translateLabel()
                     ->image(),
             ]);

@@ -20,32 +20,30 @@ class SellingOverview extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalRevenue = $this->getTotalRevenue();
-        $todaySales = $this->getSalesToday();
-        $discountToday = $this->getDiscountToday();
+        $startDate = $this->filters['startDate'] ?? now()->startOfDay();
+        $endDate = $this->filters['endDate'] ?? now()->endOfDay();
+        $totalRevenue = $this->getTotalRevenue($startDate, $endDate);
+        $sales = $this->getSales($startDate, $endDate);
+        $discount = $this->getDiscount($startDate, $endDate);
 
         return [
-            can('read revenue overview') ? Stat::make(__('Today total revenue'), $totalRevenue['total_revenue'])
+            can('read revenue overview') ? Stat::make(__('Total revenue'), $totalRevenue['total_revenue'])
                 ->descriptionIcon($totalRevenue['icon'])
                 ->description($totalRevenue['description'])
                 ->chart([$totalRevenue['yesterdayRevenue'], $totalRevenue['todayRevenue']])
                 ->color($totalRevenue['color']) : null,
-            can('read sales overview') ? Stat::make(__('Sales today'), $todaySales) : null,
-            can('read sales overview') ? Stat::make(__('Discount today'), $discountToday) : null,
+            can('read sales overview') ? Stat::make(__('Total sales'), $sales) : null,
+            can('read sales overview') ? Stat::make(__('Total discount'), $discount) : null,
         ];
     }
 
-    private function getDiscountToday()
+    private function getDiscount($startDate, $endDate)
     {
-        $carbon = now(Profile::get()->timezone);
-        $today = $carbon->startOfDay()->format('Y-m-d H:i:s e');
-        $startDate = Carbon::parse($today)->setTimezone('UTC');
-        $endDate = Carbon::parse($today)->setTimezone('UTC')->addDay();
-        $totalDiscountSellings = Selling::whereBetween('date', [$startDate, $endDate])
+        $totalDiscountSellings = Selling::whereBetween('created_at', [$startDate, $endDate])
             ->sum('discount_price');
 
         $totalDiscountSellingDetails = SellingDetail::whereHas('selling', function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('date', [$startDate, $endDate]);
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         })->sum('discount_price');
 
         $totalDiscount = $totalDiscountSellings + $totalDiscountSellingDetails;
@@ -53,25 +51,18 @@ class SellingOverview extends BaseWidget
         return Number::abbreviate($totalDiscount);
     }
 
-    private function getSalesToday()
+    private function getSales($startDate, $endDate)
     {
-        $carbon = now(Profile::get()->timezone);
-        $today = $carbon->startOfDay()->format('Y-m-d H:i:s e');
-        $startDate = Carbon::parse($today)->setTimezone(Profile::get()->timezone ?? 'UTC');
-
-        $salesToday = Selling::whereDate('date', $startDate)->count();
-
-        return $salesToday;
+        return Selling::whereBetween('created_at', [$startDate, $endDate])->count();
     }
 
-    private function getTotalRevenue()
+    private function getTotalRevenue($startDate, $endDate)
     {
-        $carbon = now(Profile::get()->timezone);
-        $startOfDay = $carbon->startOfDay();
-        $startOfYesterday = $startOfDay->copy()->subDay();
-
-        $yesterdayRevenue = $this->calculateRevenue($startOfYesterday, $startOfDay);
-        $todayRevenue = $this->calculateRevenue($startOfDay, $startOfDay->copy()->addDay());
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+        $startOfYesterday = $start->copy()->subDay();
+        $yesterdayRevenue = $this->calculateRevenue($startOfYesterday, $start);
+        $todayRevenue = $this->calculateRevenue($start, $end);
 
         $totalYesterdayRevenue = $this->calculateTotalRevenue($yesterdayRevenue);
         $totalTodayRevenue = $this->calculateTotalRevenue($todayRevenue);

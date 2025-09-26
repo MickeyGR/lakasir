@@ -50,6 +50,8 @@ class About extends Model
                 ->required()
                 ->translateLabel(),
             FileUpload::make('photo')
+                ->disk('public')
+                ->live()
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')
                 ->imageEditor()

@@ -30,6 +30,7 @@ trait HasProductForm
         return FileUpload::make('hero_images')
             ->image()
             ->translateLabel()
+            ->disk('public')
             ->imageResizeMode('cover')
             ->imageCropAspectRatio('1:1')
             ->imageEditor()
@@ -224,12 +225,9 @@ trait HasProductForm
 
     public function generateExpiredFormComponent()
     {
-        return DatePicker::make('expired')
-            ->visible(function (string $operation) {
-                return Feature::active(ProductExpired::class) && $operation == 'create';
-            })
-            ->rule('after:now')
-            ->required()
+        return DatePicker::make('expired_at')
+            ->translateLabel()
+            ->rule('after_or_equal:today')
             ->native(false);
     }
 }

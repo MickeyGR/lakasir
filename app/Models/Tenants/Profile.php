@@ -69,6 +69,7 @@ class Profile extends Model
                     'es_NI' => 'Español (Nicaragua)',
                 ]),
             FileUpload::make('photo')
+                ->disk('public')
                 ->visible(feature('edit-profile'))
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')

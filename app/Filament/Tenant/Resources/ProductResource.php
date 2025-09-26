@@ -114,6 +114,10 @@ class ProductResource extends Resource
                 TextColumn::make('type')
                     ->visible(Feature::active(ProductType::class))
                     ->translateLabel(),
+                TextColumn::make('expired_at')
+                    ->date()
+                    ->sortable()
+                    ->toggleable(),
                 ToggleColumn::make('is_non_stock')
                     ->toggleable()
                     ->visible(Feature::active(ProductStock::class))
@@ -233,6 +237,9 @@ class ProductResource extends Resource
                 ->money(Setting::get('currency', 'IDR'))
 
                 ->size(TextEntry\TextEntrySize::Large)
+                ->translateLabel(),
+            Infolists\Components\TextEntry::make('expired_at')
+                ->date()
                 ->translateLabel(),
         ]);
     }

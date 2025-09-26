@@ -23,9 +23,13 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded = ['id', 'hero_images_url', 'expired'];
+    protected $guarded = ['id', 'hero_images_url'];
 
     protected $appends = ['hero_image'];
+
+    protected $casts = [
+        'expired_at' => 'date',
+    ];
 
     private int $expiredDay = 20;
 

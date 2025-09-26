@@ -219,7 +219,7 @@
     "Stock": "Inventario",
     "Unit": "Unidad",
     "Unit price": "Precio unitario",
-    "Expired": "Caducado",
+    "Expired": "Expiración",
     "Initial price": "Precio inicial",
     "Selling price": "Precio de venta",
     "Type": "Tipo",
@@ -362,5 +362,5 @@
     "Barcode already exists.": "El código de barras ya existe.",
     "Profile": "Perfil",
     "Language": "Idioma",
-    "Migrated from original barcode" : "Migrado desde campo barcode original"
+    "Migrated from original barcode": "Migrado desde campo barcode original"
 }

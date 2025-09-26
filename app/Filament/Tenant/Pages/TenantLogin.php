@@ -25,9 +25,6 @@ class TenantLogin extends Login
         $user->profile()->updateOrCreate(
             [
                 'user_id' => $user->getKey(),
-            ],
-            [
-                'timezone' => 'Asia/Jakarta',
             ]
         );
 

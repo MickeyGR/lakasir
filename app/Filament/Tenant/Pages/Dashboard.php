@@ -12,18 +12,18 @@ class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
 
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         FilterAction::make()
-    //             ->form([
-    //                 DatePicker::make('startDate')
-    //                     ->native(false),
-    //                 DatePicker::make('endDate')
-    //                     ->native(false),
-    //             ]),
-    //     ];
-    // }
+    protected function getHeaderActions(): array
+    {
+        return [
+            FilterAction::make()
+                ->form([
+                    DatePicker::make('startDate')
+                        ->native(false),
+                    DatePicker::make('endDate')
+                        ->native(false),
+                ]),
+        ];
+    }
 
     protected function getHeaderWidgets(): array
     {
