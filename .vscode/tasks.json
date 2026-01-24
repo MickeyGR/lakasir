@@ -1,0 +1,287 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Laravel: serve",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "serve",
+        "--host=127.0.0.1",
+        "--port=8000"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": [
+          {
+            "regexp": "^(.*)$",
+            "message": 1
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting Laravel development server",
+          "endsPattern": "Press Ctrl\\+C"
+        }
+      }
+    },
+    {
+      "label": "Vite: dev",
+      "type": "process",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": [
+          {
+            "regexp": "^(.*)$",
+            "message": 1
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE v|ready in",
+          "endsPattern": "Local:"
+        }
+      }
+    },
+    {
+      "label": "Dev: start servers",
+      "dependsOn": [
+        "Laravel: serve",
+        "Vite: dev"
+      ],
+      "dependsOrder": "parallel"
+    },
+    {
+      "label": "Pest: test",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Pest: test (filter)",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "test",
+        "--filter",
+        "${input:pestFilter}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Queue: work",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "queue:work"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Scheduler: work",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "schedule:work"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Filament: assets",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "filament:assets"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Livewire: publish assets",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "livewire:publish",
+        "--assets"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Migrate: tenant + seed",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "migrate",
+        "--path=database/migrations/tenant",
+        "--seed"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "App: create user",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "app:create-user"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Setup: initial (migrate + user + assets)",
+      "dependsOn": [
+        "Migrate: tenant + seed",
+        "App: create user",
+        "Filament: assets",
+        "Livewire: publish assets"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Composer: install",
+      "type": "process",
+      "command": "composer",
+      "args": [
+        "install"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "NPM: install",
+      "type": "process",
+      "command": "npm",
+      "args": [
+        "install"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "App: key generate",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "artisan",
+        "key:generate"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Setup: bootstrap (deps + key + initial)",
+      "dependsOn": [
+        "Composer: install",
+        "NPM: install",
+        "App: key generate",
+        "Setup: initial (migrate + user + assets)"
+      ],
+      "dependsOrder": "sequence"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pestFilter",
+      "type": "promptString",
+      "description": "Pest filter (class, method, or regex)"
+    }
+  ]
+}

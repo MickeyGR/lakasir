@@ -1,0 +1,76 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "PHP: Listen for Xdebug",
+      "type": "php",
+      "request": "launch",
+      "port": 9003
+    },
+    {
+      "name": "Laravel: start servers + Xdebug",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "preLaunchTask": "Dev: start servers"
+    },
+    {
+      "name": "Pest: test (Xdebug)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "program": "${workspaceFolder}/artisan",
+      "args": [
+        "test"
+      ]
+    },
+    {
+      "name": "Pest: test (filter) (Xdebug)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "program": "${workspaceFolder}/artisan",
+      "args": [
+        "test",
+        "--filter",
+        "${input:pestFilter}"
+      ]
+    },
+    {
+      "name": "Pest: test (file) (Xdebug)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "program": "${workspaceFolder}/artisan",
+      "args": [
+        "test",
+        "${input:pestFile}"
+      ]
+    },
+    {
+      "name": "Pest: test (file + filter) (Xdebug)",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "program": "${workspaceFolder}/artisan",
+      "args": [
+        "test",
+        "${input:pestFile}",
+        "--filter",
+        "${input:pestFilter}"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pestFilter",
+      "type": "promptString",
+      "description": "Pest filter (class, method, or regex)"
+    },
+    {
+      "id": "pestFile",
+      "type": "promptString",
+      "description": "Test file path (e.g. tests/Feature/ExampleTest.php)"
+    }
+  ]
+}
