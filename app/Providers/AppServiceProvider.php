@@ -46,6 +46,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // Global bearer auth for Scramble-generated OpenAPI (applies to all endpoints in docs).
         if (class_exists(Scramble::class)) {
+            // In production, don't expose documentation routes/spec.
+            if ($this->app->isProduction()) {
+                Scramble::ignoreDefaultRoutes();
+
+                return;
+            }
             // Disable Scramble UI route; expose only JSON spec for Scalar.
             Scramble::ignoreDefaultRoutes();
             Scramble::registerJsonSpecificationRoute('docs/api.json');
