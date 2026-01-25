@@ -55,6 +55,13 @@
 7) **Servidor + Vite**: en dos terminales: `php artisan serve --host=localdomain.test --port=8000` y `npm run dev`.
 8) **Hosts**: agrega `127.0.0.1 localdomain.test` y cada dominio de tenant que uses (ej. `127.0.0.1 tenantdemo.localdomain.test`). En VS Code existe la task `Hosts: add localdomain.test` para el host base.
 
+### Actualización en producción
+1) Trae cambios: `git pull`.
+2) Dependencias PHP: `composer install --no-dev --optimize-autoloader`.
+3) Migraciones (espera “Nothing to migrate.” si no hay nuevas): `php artisan migrate`.
+4) Multi-tenant (solo si aplica): `php artisan tenants:migrate --tenants=tu_tenant` o `--all`.
+5) Limpia cachés: `php artisan optimize:clear`.
+
 ### Usuarios admin / “super admin”
 - **Multi-tenant (recomendado, APP_CENTRAL_DOMAIN definido)**: no hay panel central; cada tienda crea su propio usuario owner (rol `admin`) al registrarse. Administra desde `https://{tu-dominio-tenant}/member`.
 - **Standalone (APP_CENTRAL_DOMAIN vacío)**: ejecuta `php artisan app:create-user` para crear el owner inicial y entra por `APP_URL/member/login`. Este comando está bloqueado cuando hay dominio central configurado.
