@@ -16,11 +16,16 @@ use Illuminate\Validation\ValidationException;
 
 class TransactionSellingStoreRequest extends FormRequest
 {
-    public function __construct(
-        private SellingService $sellingService,
-        private VoucherService $voucherService
-    ) {
+    private SellingService $sellingService;
+    private VoucherService $voucherService;
 
+    public function __construct(
+        ?SellingService $sellingService = null,
+        ?VoucherService $voucherService = null
+    ) {
+        // Make constructor optional for cases like docs generation while keeping DI in normal requests.
+        $this->sellingService = $sellingService ?? app(SellingService::class);
+        $this->voucherService = $voucherService ?? app(VoucherService::class);
     }
 
     public function authorize(): bool

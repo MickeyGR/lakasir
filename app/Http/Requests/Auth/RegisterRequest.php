@@ -12,9 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class RegisterRequest extends FormRequest
 {
-    public function __construct(public RegisterTenant $registerTenant)
+    public function __construct(public ?RegisterTenant $registerTenant = null)
     {
-
+        // Allow construction without explicit dependency (eg, during docs generation).
+        $this->registerTenant ??= app(RegisterTenant::class);
     }
 
     /**

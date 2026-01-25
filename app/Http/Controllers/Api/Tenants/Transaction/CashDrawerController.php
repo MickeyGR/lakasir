@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class CashDrawerController extends Controller
 {
+    /**
+     * @requestMediaType application/json
+     * @body array{cash: 500000}
+     * @response array{success: true, message: "success store money to cash drawer for today"}
+     */
     public function store(Request $request)
     {
         $lastOpenedCashDrawer = CashDrawer::lastOpened()->first();
@@ -35,6 +40,9 @@ class CashDrawerController extends Controller
             ->present();
     }
 
+    /**
+     * @response array{success: true, message: "success close cash drawer for today"}
+     */
     public function close()
     {
         $lastOpenedCashDrawer = CashDrawer::lastOpened()->first();
@@ -54,6 +62,19 @@ class CashDrawerController extends Controller
             ->present();
     }
 
+    /**
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     id: 1,
+     *     cash: 500000,
+     *     opened_by: 1,
+     *     closed_by: null,
+     *     opened_at: "2026-01-25 08:00:00",
+     *     closed_at: null
+     *   }
+     * }
+     */
     public function show()
     {
         $lastOpenedCashDrawer = CashDrawer::lastOpened()->first();

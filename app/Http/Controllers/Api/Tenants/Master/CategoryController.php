@@ -22,6 +22,11 @@ class CategoryController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{name: "Minuman"}
+     * @response array{success: true, message: "success creating category"}
+     */
     public function store(Request $request)
     {
         $this->validate($request, [

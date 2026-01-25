@@ -12,6 +12,25 @@ use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
+    /**
+     * Get the authenticated user's profile.
+     *
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     id: 1,
+     *     is_owner: 1,
+     *     name: "MICKEY GUDIEL REYES",
+     *     email: "mickeyanthonygudiel@gmail.com",
+     *     profile: array{
+     *       id: 1,
+     *       address: "Bo Martin Luther King",
+     *       phone: "+50589897898",
+     *       locale: "en"
+     *     }
+     *   }
+     * }
+     */
     public function index()
     {
         return $this->buildResponse()
@@ -19,6 +38,11 @@ class ProfileController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{name: "Mickey Updated", phone: "1234567890", address: "New Address", locale: "id"}
+     * @response array{success: true, message: "Profile updated successfully"}
+     */
     public function update(Request $request)
     {
         $this->validate($request, [

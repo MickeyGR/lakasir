@@ -23,7 +23,7 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CashierReportController;
-use App\Http\Controllers\PrinterController;
+use App\Http\Controllers\Api\Tenants\PrinterController;
 use App\Http\Controllers\ProductReportController;
 use App\Http\Controllers\SellingReportController;
 use App\Http\Middleware\InitializeTenancyByDomain;
@@ -128,6 +128,9 @@ Route::middleware([
 
                 Route::resource('member', MemberController::class)
                     ->middleware('method_and_permission:index@read member|store@create member|show@read member|destroy@delete member|update@update member');
+
+                Route::resource('proforma', \App\Http\Controllers\Api\Tenants\ProformaController::class)
+                    ->middleware('method_and_permission:index@read selling|store@create selling|show@read selling|destroy@delete selling|update@update selling');
 
                 Route::group(['prefix' => 'payment-method'], function () {
                     Route::get('/', [PaymentMethodController::class, 'index'])->can('read payment method');

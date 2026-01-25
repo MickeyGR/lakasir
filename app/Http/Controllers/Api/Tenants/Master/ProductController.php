@@ -37,6 +37,12 @@ class ProductController extends Controller
             ->present();
     }
 
+    /**
+     * @response array{
+     *   success: true,
+     *   message: "success creating items"
+     * }
+     */
     public function store(ProductRequest $request)
     {
         $request->created();

@@ -9,6 +9,18 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /**
+     * @requestMediaType application/json
+     * @body array{filter_type: "this_month", timezone: "Asia/Jakarta"}
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     total_revenue: 15400000,
+     *     total_prevous_revenue: 12000000,
+     *     percentage_change: 28
+     *   }
+     * }
+     */
     public function totalRevenue(Request $request)
     {
         $filterType = $request->filter_type;
@@ -44,6 +56,18 @@ class DashboardController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{filter_type: "this_month", timezone: "Asia/Jakarta"}
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     total_gross_profit: 45000000,
+     *     total_prevous_gross_profit: 40000000,
+     *     percentage_change: 12
+     *   }
+     * }
+     */
     public function totalGrossProfit(Request $request)
     {
         $filterType = $request->filter_type;
@@ -72,6 +96,18 @@ class DashboardController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{filter_type: "this_month", timezone: "Asia/Jakarta"}
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     total_sales: 153,
+     *     total_prevous_sales: 120,
+     *     percentage_change: 27
+     *   }
+     * }
+     */
     public function totalSales(Request $request)
     {
         $filterType = $request->filter_type;

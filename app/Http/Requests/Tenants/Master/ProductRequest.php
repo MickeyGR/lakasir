@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+/**
+ * @property string $name Example: Coca Cola 1L
+ * @property int $category Example: 1
+ * @property int $stock Example: 100
+ * @property int $initial_price Example: 5000
+ * @property int $selling_price Example: 7000
+ * @property string $type Example: product
+ * @property bool $is_non_stock Example: false
+ */
 class ProductRequest extends FormRequest
 {
     public function authorize()
@@ -56,26 +65,23 @@ class ProductRequest extends FormRequest
             ]);
         }
 
+        $requireExpiredOnCreate = feature(ProductExpired::class) && $this->isMethod('post');
+        $isNonStock = $this->boolean('is_non_stock');
+
         return [
-            'sku' => [Rule::unique(Product::class)->ignore($this->route('product'))],
+            'sku' => ['nullable', Rule::unique(Product::class)->ignore($this->route('product'))],
             'barcode' => ['nullable', 'min:3', Rule::unique(Product::class)->ignore($this->route('product'))],
             'name' => ['required', 'min:3'],
             'category' => ['required'],
-            'stock' => ['numeric', Rule::requiredIf(! $this->is_non_stock)],
+            'stock' => ['numeric', Rule::requiredIf(! $isNonStock)],
             'initial_price' => ['numeric', 'required', 'lte:selling_price'],
             'selling_price' => ['numeric', 'required', 'gte:initial_price'],
-            'type' => [Rule::in('product', 'service'), 'required'],
-            'hero_images_url' => ['string'],
+            'type' => ['required', Rule::in('product', 'service')],
+            'hero_images_url' => ['nullable', 'string'],
             'is_non_stock' => ['boolean', 'required'],
-            'expired' => [
-                Rule::requiredIf(function () {
-                    return feature(ProductExpired::class) && $this->method() == 'POST';
-                }),
-                $this->method() == 'POST' ? [
-                    'date',
-                    'after_or_equal:now',
-                ] : [],
-            ],
+            'expired' => $requireExpiredOnCreate
+                ? ['required', 'date', 'after_or_equal:now']
+                : ['nullable', 'date', 'after_or_equal:now'],
         ];
     }
 

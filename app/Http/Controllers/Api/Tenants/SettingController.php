@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 
 class SettingController extends Controller
 {
+    /**
+     * @requestMediaType application/json
+     * @body array{key: "web_title", value: "My Awesome POS"}
+     * @response array{success: true, message: "success update setting"}
+     */
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -55,6 +60,20 @@ class SettingController extends Controller
             ->present();
     }
 
+    /**
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     currency: "IDR",
+     *     selling_method: "fifo",
+     *     cash_drawer_enabled: false,
+     *     secure_initial_price_enabled: false,
+     *     secure_initial_price_using_pin: false,
+     *     minimum_stock_nofication: 0,
+     *     default_tax: 0
+     *   }
+     * }
+     */
     public function show(string $key)
     {
         if (! in_array($key, array_merge(config('setting.key'), ['all']))) {

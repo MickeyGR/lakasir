@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Hash;
 
 class SecureInitialPriceController extends Controller
 {
+    /**
+     * @requestMediaType application/json
+     * @body array{password: "123456", password_confirmation: "123456"}
+     * @response array{success: true, message: "secure initial price password has been set"}
+     */
     public function store(Request $request)
     {
         if (!Setting::get('secure_initial_price_enabled', false)) {
@@ -64,6 +69,11 @@ class SecureInitialPriceController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{password: "123456"}
+     * @response array{success: true, message: "secure initial price password is valid"}
+     */
     public function verify(Request $request)
     {
        if (!Setting::get('secure_initial_price_enabled', false)) {

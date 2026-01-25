@@ -11,6 +11,32 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class SellingController extends Controller
 {
+    /**
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     links: array(first: "http://...", prev: null, next: null),
+     *     meta: array(current_page: 1, from: 1, per_page: 10, to: 10),
+     *     data: array{
+     *       array{
+     *         id: 1,
+     *         code: "SELL0001",
+     *         grand_total_price: 19980,
+     *         total_price: 20380,
+     *         discount: 0,
+     *         member: array(id: 1, name: "Joe Mendez"),
+     *         payment_method: array(id: 3, name: "Fiado"),
+     *         cashier: array(id: 1, name: "MICKEY GUDIEL REYES"),
+     *         selling_details: array{
+     *           array{product_id: 2, qty: 1, price: 8500000, product: array(name: "Laptop Air 13")},
+     *           array{product_id: 1, qty: 2, price: 12000000, product: array(name: "Laptop Pro 15")}
+     *         }
+     *       }
+     *     }
+     *   },
+     *   message: "success get sellings"
+     * }
+     */
     public function index(Request $request)
     {
         $sellings = QueryBuilder::for(Selling::class)
@@ -38,6 +64,19 @@ class SellingController extends Controller
             ->present();
     }
 
+    /**
+     * @requestMediaType application/json
+     * @body array{
+     *   member_id: 1,
+     *   payment_method_id: 3,
+     *   note: "Customer note",
+     *   payed_money: 20000,
+     *   cart: array{
+     *     array{product_id: 1, qty: 2, price: 12000000, discount: 0, note: "Extra wrapping"}
+     *   }
+     * }
+     * @response array{success: true, message: "success create selling", data: array(id: 2, code: "SELL0002")}
+     */
     public function store(TransactionSellingStoreRequest $request)
     {
         $selling = $request->store();
@@ -49,6 +88,9 @@ class SellingController extends Controller
             ->present();
     }
 
+    /**
+     * @response array{success: true, message: "success get selling", data: array(id: 1, code: "SELL0001", grand_total_price: 19980)}
+     */
     public function show(Selling $selling)
     {
         $selling->load(['member', 'paymentMethod', 'sellingDetails', 'user']);

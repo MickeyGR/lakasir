@@ -12,6 +12,12 @@ class NotificationController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
+     * @response array{
+     *   success: true,
+     *   message: "success get notification",
+     *   data: array()
+     * }
      */
     public function index()
     {

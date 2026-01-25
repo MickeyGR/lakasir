@@ -3,7 +3,47 @@
   "tasks": [
     {
       "label": "Laravel: serve",
-      "type": "process",
+      "type": "shell",
+      "command": "php",
+      "args": [
+        "artisan",
+        "serve",
+        "--host=localdomain.test",
+        "--port=8000"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": [
+            "-l",
+            "-c"
+          ]
+        }
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": [
+          {
+            "regexp": "^(.*)$",
+            "message": 1
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting Laravel development server",
+          "endsPattern": "Press Ctrl\\+C"
+        }
+      }
+    },
+    {
+      "label": "Laravel: serve (127.0.0.1)",
+      "type": "shell",
       "command": "php",
       "args": [
         "artisan",
@@ -12,7 +52,14 @@
         "--port=8000"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": [
+            "-l",
+            "-c"
+          ]
+        }
       },
       "isBackground": true,
       "presentation": {
@@ -36,14 +83,21 @@
     },
     {
       "label": "Vite: dev",
-      "type": "process",
+      "type": "shell",
       "command": "npm",
       "args": [
         "run",
         "dev"
       ],
       "options": {
-        "cwd": "${workspaceFolder}"
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": [
+            "-l",
+            "-c"
+          ]
+        }
       },
       "isBackground": true,
       "presentation": {
@@ -72,6 +126,19 @@
         "Vite: dev"
       ],
       "dependsOrder": "parallel"
+    },
+    {
+      "label": "Hosts: add localdomain.test",
+      "type": "process",
+      "command": "bash",
+      "args": [
+        "-lc",
+        "grep -q \"localdomain.test\" /etc/hosts || echo \"127.0.0.1 localdomain.test\" | sudo tee -a /etc/hosts"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     },
     {
       "label": "Pest: test",
@@ -177,7 +244,7 @@
       }
     },
     {
-      "label": "Migrate: tenant + seed",
+      "label": "DB: migrate tenant + seed",
       "type": "process",
       "command": "php",
       "args": [
@@ -195,7 +262,7 @@
       }
     },
     {
-      "label": "App: create user",
+      "label": "DB: create user",
       "type": "process",
       "command": "php",
       "args": [
@@ -211,10 +278,10 @@
       }
     },
     {
-      "label": "Setup: initial (migrate + user + assets)",
+      "label": "Setup: initial (DB + assets)",
       "dependsOn": [
-        "Migrate: tenant + seed",
-        "App: create user",
+        "DB: migrate tenant + seed",
+        "DB: create user",
         "Filament: assets",
         "Livewire: publish assets"
       ],
@@ -267,14 +334,33 @@
       }
     },
     {
-      "label": "Setup: bootstrap (deps + key + initial)",
+      "label": "Setup: bootstrap (deps + key + DB + assets)",
       "dependsOn": [
         "Composer: install",
         "NPM: install",
         "App: key generate",
-        "Setup: initial (migrate + user + assets)"
+        "Setup: initial (DB + assets)"
       ],
       "dependsOrder": "sequence"
+    },
+    {
+      "label": "Fix: refresh panel assets",
+      "type": "shell",
+      "command": "php artisan livewire:publish --assets && php artisan filament:assets && php artisan optimize:clear && npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": [
+            "-l",
+            "-c"
+          ]
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     }
   ],
   "inputs": [
