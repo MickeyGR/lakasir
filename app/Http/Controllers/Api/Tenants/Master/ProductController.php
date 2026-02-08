@@ -13,6 +13,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductController extends Controller
 {
+    /**
+     * Get list of products
+     *
+     * @response ProductCollection
+     */
     public function index()
     {
         $products = QueryBuilder::for(Product::class)
@@ -38,10 +43,9 @@ class ProductController extends Controller
     }
 
     /**
-     * @response array{
-     *   success: true,
-     *   message: "success creating items"
-     * }
+     * Create a new product
+     *
+     * @response array{success: true, message: "success creating items"}
      */
     public function store(ProductRequest $request)
     {
@@ -52,6 +56,11 @@ class ProductController extends Controller
             ->present();
     }
 
+    /**
+     * Show a product
+     *
+     * @response ProductCollection
+     */
     public function show(Product $product)
     {
         $product->load(['category', 'stocks']);
@@ -62,6 +71,11 @@ class ProductController extends Controller
             ->present();
     }
 
+    /**
+     * Update a product
+     *
+     * @response array{success: true, message: "success updating items"}
+     */
     public function update(ProductRequest $request)
     {
         $request->updated();
@@ -71,6 +85,11 @@ class ProductController extends Controller
             ->present();
     }
 
+    /**
+     * Delete a product
+     *
+     * @response array{success: true, message: "success deleting items"}
+     */
     public function destroy(Product $product, ProductRequest $request)
     {
         $request->deleteImages();
