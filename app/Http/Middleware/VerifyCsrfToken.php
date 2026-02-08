@@ -15,4 +15,13 @@ class VerifyCsrfToken extends Middleware
         // 'localhost:3000/*',
         'livewire/*',
     ];
+
+    public function __construct(\Illuminate\Contracts\Foundation\Application $app, \Illuminate\Contracts\Encryption\Encrypter $encrypter)
+    {
+        parent::__construct($app, $encrypter);
+        
+        if (env('STANDALONE_MODE')) {
+            $this->except[] = 'api/*';
+        }
+    }
 }
