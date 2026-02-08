@@ -20,7 +20,7 @@ class VerifyCsrfToken extends Middleware
     {
         parent::__construct($app, $encrypter);
         
-        if (env('STANDALONE_MODE')) {
+        if (config('scalar.standalone_mode')) {
             $this->except[] = 'api/*';
         }
     }

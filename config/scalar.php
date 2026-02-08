@@ -195,4 +195,14 @@ return [
         'defaultOpenAllTags' => false,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Standalone Mode
+    |--------------------------------------------------------------------------
+    |
+    | Whether the application is running in standalone mode (single tenant).
+    |
+    */
+    'standalone_mode' => env('STANDALONE_MODE', false),
+
 ];

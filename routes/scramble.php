@@ -11,7 +11,7 @@ $middleware = [
     InitializeTenancyByDomain::class,
 ];
 
-if (! env('STANDALONE_MODE')) {
+if (! config('scalar.standalone_mode')) {
     $middleware[] = RestrictedDocsAccess::class;
 }
 

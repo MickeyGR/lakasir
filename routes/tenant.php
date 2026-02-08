@@ -37,7 +37,7 @@ $middleware = [
     InitializeTenancyByDomain::class,
 ];
 
-if (! env('STANDALONE_MODE')) {
+if (! config('scalar.standalone_mode')) {
     $middleware[] = PreventAccessFromCentralDomains::class;
 }
 
@@ -66,7 +66,7 @@ $apiMiddleware = [
     InitializeTenancyByDomain::class,
 ];
 
-if (! env('STANDALONE_MODE')) {
+if (! config('scalar.standalone_mode')) {
     $apiMiddleware[] = PreventAccessFromCentralDomains::class;
 }
 
