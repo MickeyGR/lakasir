@@ -16,7 +16,31 @@ class ProductController extends Controller
     /**
      * Get list of products
      *
-     * @response ProductCollection
+     * @queryParam page int Page number. Example: 1
+     * @queryParam filter[global] string Search by name, sku, or barcode.
+     * @queryParam filter[name] string Filter by product name.
+     * @queryParam filter[category_id] int Filter by category ID.
+     * @queryParam sort string Sort by field (e.g. -created_at).
+     *
+     * @response array{
+     *   success: boolean,
+     *   data: array{
+     *     data: \App\Http\Resources\ProductCollection[],
+     *     links: array{
+     *       first: string,
+     *       prev: ?string,
+     *       next: ?string
+     *     },
+     *     meta: array{
+     *       current_page: int,
+     *       from: ?int,
+     *       path: string,
+     *       per_page: int,
+     *       to: ?int
+     *     }
+     *   },
+     *   message: ?string
+     * }
      */
     public function index()
     {
