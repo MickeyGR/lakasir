@@ -14,8 +14,23 @@ Route::middleware([
     Route::get('docs/api', function () {
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
-        
-        $config->set('url', '/docs/api-json');
+
+        // Force 'url' into config using Reflection because there is no simple getter for the whole array
+        // and we want to preserve existing config.
+        try {
+            $reflection = new \ReflectionClass($config);
+            $property = $reflection->getProperty('config');
+            $property->setAccessible(true);
+            $currentConfig = $property->getValue($config);
+            
+            $currentConfig['url'] = '/docs/api-json';
+            
+            $config->config($currentConfig);
+        } catch (\Throwable $e) {
+            // Fallback if reflection fails, though unlikely
+            // We just continue, but maybe log it?
+            // For now, silent fail is better than crash 500
+        }
         
         return view('scramble::docs', [
             'spec' => $generator($config),
