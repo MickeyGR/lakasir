@@ -30,6 +30,7 @@ class ProductIndexRequest extends FormRequest
             'filter.global' => ['string', 'nullable'],
             'filter.name' => ['string', 'nullable'],
             'filter.category_id' => ['integer', 'nullable'],
+            'filter.category.name' => ['string', 'nullable'],
             'filter.sellingPrice' => ['numeric', 'nullable'],
             'filter.initialPrice' => ['numeric', 'nullable'],
             'filter.type' => ['string', 'nullable'],

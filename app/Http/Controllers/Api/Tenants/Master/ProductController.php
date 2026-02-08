@@ -54,6 +54,7 @@ class ProductController extends Controller
                 AllowedFilter::custom('global', new SearchFields, 'name,sku,barcode'),
             ])
             ->allowedIncludes(['category', 'images'])
+            ->allowedSorts(['name', 'selling_price', 'initial_price', 'created_at'])
             ->orderByDesc('created_at')
             ->simplePaginate($request->per_page);
 
