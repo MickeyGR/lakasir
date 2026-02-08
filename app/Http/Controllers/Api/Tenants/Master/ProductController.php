@@ -55,7 +55,7 @@ class ProductController extends Controller
             ])
             ->allowedIncludes(['category', 'images'])
             ->orderByDesc('created_at')
-            ->simplePaginate();
+            ->simplePaginate($request->per_page);
 
         return $this->buildResponse()
             ->setData(ProductCollection::collection($products))
