@@ -6,11 +6,16 @@ use App\Http\Middleware\InitializeTenancyByDomain;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Generator;
 
-Route::middleware([
+$middleware = [
     'web',
     InitializeTenancyByDomain::class,
-    RestrictedDocsAccess::class,
-])->group(function () {
+];
+
+if (! env('STANDALONE_MODE')) {
+    $middleware[] = RestrictedDocsAccess::class;
+}
+
+Route::middleware($middleware)->group(function () {
     Route::get('docs/api', function () {
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
