@@ -58,7 +58,10 @@ class InitializeTenancyByDomain extends IdentificationMiddleware
                 }
             }
         } catch (TenantCouldNotBeIdentifiedException $e) {
-            $onFail = static::$onFail ?? function ($e) {
+            $onFail = static::$onFail ?? function ($e) use ($request) {
+                if (env('STANDALONE_MODE') && ! \App\Tenant::exists()) {
+                     return response()->json(['message' => 'Standalone mode enabled but no tenants found. Please run seeders.'], 500);
+                }
                 throw $e;
             };
 

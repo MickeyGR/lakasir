@@ -30,8 +30,12 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->routes(function () {
             $this->mapWebRoutes();
-
             $this->mapApiRoutes();
+            
+            if (file_exists(base_path('routes/scramble.php'))) {
+                 Route::middleware('web')
+                     ->group(base_path('routes/scramble.php'));
+            }
         });
     }
 
