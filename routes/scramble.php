@@ -5,18 +5,25 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\InitializeTenancyByDomain;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Generator;
+use Illuminate\Support\Facades\Log;
 
 $middleware = [
     'web',
     InitializeTenancyByDomain::class,
 ];
 
+Log::info('Scramble routes file loaded. Config standalone: ' . (config('scalar.standalone_mode') ? 'YES' : 'NO'));
+
 if (! config('scalar.standalone_mode')) {
+    Log::info('Adding RestrictedDocsAccess middleware');
     $middleware[] = RestrictedDocsAccess::class;
+} else {
+    Log::info('Skipping RestrictedDocsAccess middleware due to standalone mode');
 }
 
 Route::middleware($middleware)->group(function () {
     Route::get('docs/api', function () {
+        Log::info('Accessing docs/api route');
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
 
@@ -44,6 +51,7 @@ Route::middleware($middleware)->group(function () {
     });
 
     Route::get('docs/api-json', function () {
+        Log::info('Accessing docs/api-json route');
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
         
