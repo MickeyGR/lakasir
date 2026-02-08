@@ -204,6 +204,7 @@ return [
         App\Providers\TenancyServiceProvider::class,
         //Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         App\Providers\Filament\TenantPanelProvider::class,
+        App\Providers\ScrambleServiceProvider::class,
     ],
 
     /*
