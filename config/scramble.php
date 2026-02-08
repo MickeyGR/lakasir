@@ -129,6 +129,7 @@ return [
 
     'middleware' => [
         'web',
+        \App\Http\Middleware\InitializeTenancyByDomain::class,
         RestrictedDocsAccess::class,
     ],
 
