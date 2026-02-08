@@ -21,10 +21,10 @@ Route::middleware([
         ]);
     });
 
-    Route::get('docs/api.json', function () {
+    Route::get('docs/api-json', function () {
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
         
         return response()->json($generator($config), options: JSON_PRETTY_PRINT);
-    });
+    })->name('scramble.docs.index');
 });
