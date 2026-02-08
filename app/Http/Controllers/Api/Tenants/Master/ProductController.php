@@ -11,16 +11,12 @@ use App\Models\Tenants\Product;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
+use App\Http\Requests\Tenants\Master\ProductIndexRequest;
+
 class ProductController extends Controller
 {
     /**
      * Get list of products
-     *
-     * @queryParam page int Page number. Example: 1
-     * @queryParam filter[global] string Search by name, sku, or barcode.
-     * @queryParam filter[name] string Filter by product name.
-     * @queryParam filter[category_id] int Filter by category ID.
-     * @queryParam sort string Sort by field (e.g. -created_at).
      *
      * @response array{
      *   success: boolean,
@@ -42,7 +38,7 @@ class ProductController extends Controller
      *   message: ?string
      * }
      */
-    public function index()
+    public function index(ProductIndexRequest $request)
     {
         $products = QueryBuilder::for(Product::class)
             ->allowedFilters([
