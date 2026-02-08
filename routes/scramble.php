@@ -15,6 +15,8 @@ Route::middleware([
         $config = Scramble::getGeneratorConfig('default');
         $generator = app(Generator::class);
         
+        $config->set('url', '/docs/api-json');
+        
         return view('scramble::docs', [
             'spec' => $generator($config),
             'config' => $config,
