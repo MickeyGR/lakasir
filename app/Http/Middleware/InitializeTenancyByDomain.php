@@ -49,6 +49,11 @@ class InitializeTenancyByDomain extends IdentificationMiddleware
                         $this->tenancy->initialize(
                             $this->resolver->resolve(...$resolverArguments)
                         );
+                    } elseif (env('STANDALONE_MODE')) {
+                        $tenant = \App\Tenant::first();
+                        if ($tenant) {
+                            $this->tenancy->initialize($tenant);
+                        }
                     }
                 }
             }

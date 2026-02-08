@@ -32,11 +32,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
-Route::middleware([
+$middleware = [
     'web',
     InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-])
+];
+
+if (! env('STANDALONE_MODE')) {
+    $middleware[] = PreventAccessFromCentralDomains::class;
+}
+
+Route::middleware($middleware)
     ->group(function () {
         Route::get('/', function () {
             return redirect()->to('/member');
@@ -56,11 +61,16 @@ Route::middleware([
             ->name('reset-password.index');
     });
 
-Route::middleware([
+$apiMiddleware = [
     'api',
     InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-])
+];
+
+if (! env('STANDALONE_MODE')) {
+    $apiMiddleware[] = PreventAccessFromCentralDomains::class;
+}
+
+Route::middleware($apiMiddleware)
     ->prefix('api')
     ->group(function () {
         Route::get('check', function () {
