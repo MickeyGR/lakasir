@@ -13,6 +13,7 @@ use Dedoc\Scramble\Support\Generator\Types\ObjectType;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pennant\Feature;
 
@@ -56,10 +57,14 @@ class AppServiceProvider extends ServiceProvider
             Scramble::ignoreDefaultRoutes();
             Scramble::registerJsonSpecificationRoute('docs/api.json');
 
-            Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
-                $openApi->secure(
-                    SecurityScheme::http('bearer', 'JWT')->as('bearerAuth')
-                );
+            Scramble::configure()
+                ->routes(function (Route $route) {
+                    return \Illuminate\Support\Str::startsWith($route->uri, 'api/');
+                })
+                ->afterOpenApiGenerated(function (OpenApi $openApi) {
+                    $openApi->secure(
+                        SecurityScheme::http('bearer', 'JWT')->as('bearerAuth')
+                    );
 
                 // Add example response for POST /api/auth/login.
                 $loginExample = [

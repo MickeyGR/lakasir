@@ -222,6 +222,25 @@ Route::middleware($apiMiddleware)
 
         });
 
+        // Storefront API Routes (Public & Member Auth)
+        Route::group(['prefix' => 'storefront'], function () {
+            // Public Product Catalog
+            Route::get('/products', [\App\Http\Controllers\Api\Tenants\Storefront\ProductController::class, 'index']);
+            Route::get('/products/{product}', [\App\Http\Controllers\Api\Tenants\Storefront\ProductController::class, 'show']);
+
+            // Customer Authentication
+            Route::prefix('auth')->group(function () {
+                Route::post('/register', [\App\Http\Controllers\Api\Tenants\Storefront\AuthController::class, 'register']);
+                Route::post('/login', [\App\Http\Controllers\Api\Tenants\Storefront\AuthController::class, 'login']);
+            });
+
+            // Protected Customer Routes
+            Route::middleware(['auth:sanctum', 'ability:customer'])->group(function () {
+                Route::get('/auth/me', [\App\Http\Controllers\Api\Tenants\Storefront\AuthController::class, 'me']);
+                Route::post('/auth/logout', [\App\Http\Controllers\Api\Tenants\Storefront\AuthController::class, 'logout']);
+            });
+        });
+
         Route::get('/', function () {
             return ['Laravel' => app()->version()];
         });
