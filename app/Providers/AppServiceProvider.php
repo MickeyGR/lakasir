@@ -63,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
                 })
                 ->afterOpenApiGenerated(function (OpenApi $openApi) {
                     $openApi->secure(
-                        SecurityScheme::http('bearer', 'JWT')->as('bearerAuth')
+                        SecurityScheme::http('bearer')->as('bearerAuth')
                     );
 
                 // Add example response for POST /api/auth/login.
