@@ -61,10 +61,7 @@ class AppServiceProvider extends ServiceProvider
                 return \Illuminate\Support\Str::startsWith($route->uri, 'api/');
             });
 
-            Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
-                $openApi->secure(
-                    SecurityScheme::http('bearer')
-                );
+            // Scramble::afterOpenApiGenerated section removed to use config/scramble.php defaults
 
                 // Add example response for POST /api/auth/login.
                 $loginExample = [
