@@ -29,12 +29,12 @@ class ProductController extends Controller
      * @queryParam filter[category.name] string Filter by category name (exact match). Example: Electronics
      * @queryParam filter[type] string Filter by product type. Allowed: product, service. Example: product
      * @queryParam filter[unit] string Filter by unit. Example: pcs
-     * @queryParam filter[stock][gt] integer Filter stock greater than. Example: 10
-     * @queryParam filter[stock][ge] integer Filter stock greater or equal. Example: 10
-     * @queryParam filter[stock][lt] integer Filter stock less than. Example: 50
-     * @queryParam filter[stock][le] integer Filter stock less or equal. Example: 50
-     * @queryParam filter[stock][eq] integer Filter stock equal to. Example: 20
-     * @queryParam filter[stock][ne] integer Filter stock not equal to. Example: 0
+     * @queryParam filter[stock-gt] integer Filter stock greater than. Example: 10
+     * @queryParam filter[stock-ge] integer Filter stock greater or equal. Example: 10
+     * @queryParam filter[stock-lt] integer Filter stock less than. Example: 50
+     * @queryParam filter[stock-le] integer Filter stock less or equal. Example: 50
+     * @queryParam filter[stock-eq] integer Filter stock equal to. Example: 20
+     * @queryParam filter[stock-ne] integer Filter stock not equal to. Example: 0
      * @queryParam filter[global] string Search across name, SKU, and barcode. Example: LAP-001
      * @queryParam include string Include relations (comma separated). Allowed: category,images. Example: category,images
      * 
