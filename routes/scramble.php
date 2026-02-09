@@ -45,8 +45,27 @@ Route::middleware($middleware)->group(function () {
 
     Route::get('docs/api-json', function () {
         $config = Scramble::getGeneratorConfig('default');
-        $generator = app(Generator::class);
-        
-        return response()->json($generator($config), options: JSON_PRETTY_PRINT);
+        try {
+            $generator = app(\Dedoc\Scramble\Generator::class);
+            $docs = $generator($config);
+
+            // Manual Security Injection (Nuclear Fix)
+            if (is_array($docs)) {
+                $docs['components']['securitySchemes']['bearerAuth'] = [
+                    'type' => 'http',
+                    'scheme' => 'bearer',
+                    'bearerFormat' => 'JWT',
+                ];
+                $docs['security'] = [
+                    ['bearerAuth' => []]
+                ];
+            }
+
+            return response()->json($docs, options: JSON_PRETTY_PRINT);
+        } catch (\Throwable $e) {
+            // Handle error, e.g., log it or return an error response
+            // For now, re-throwing or returning a generic error is an option
+            throw $e; // Or return response()->json(['error' => $e->getMessage()], 500);
+        }
     })->name('scramble.docs.index');
 });
