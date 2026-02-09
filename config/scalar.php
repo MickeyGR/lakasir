@@ -48,7 +48,7 @@ return [
     | Scalar Galaxy package. You can change this to use a custom OpenAPI file.
     |
     */
-    'url' => '/docs/api-json',
+    'url' => '/docs/api.json',
 
     /*
     |--------------------------------------------------------------------------
