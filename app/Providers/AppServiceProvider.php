@@ -57,14 +57,14 @@ class AppServiceProvider extends ServiceProvider
             Scramble::ignoreDefaultRoutes();
             Scramble::registerJsonSpecificationRoute('docs/api.json');
 
-            Scramble::configure()
-                ->routes(function (Route $route) {
-                    return \Illuminate\Support\Str::startsWith($route->uri, 'api/');
-                })
-                ->afterOpenApiGenerated(function (OpenApi $openApi) {
-                    $openApi->secure(
-                        SecurityScheme::http('bearer')->as('bearerAuth')
-                    );
+            Scramble::routes(function (Route $route) {
+                return \Illuminate\Support\Str::startsWith($route->uri, 'api/');
+            });
+
+            Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
+                $openApi->secure(
+                    SecurityScheme::http('bearer', 'JWT')->as('bearerAuth')
+                );
 
                 // Add example response for POST /api/auth/login.
                 $loginExample = [
