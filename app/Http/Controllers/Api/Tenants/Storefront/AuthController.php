@@ -13,9 +13,26 @@ class AuthController extends Controller
     /**
      * Register a new customer
      *
-     * @requestMediaType application/json
-     * @body array{name: "John Doe", email: "john@example.com", password: "password", phone: "12345678"}
-     * @response array{success: true, message: "User registered successfully", token: "sanctum_token"}
+     * @summary Register a new customer
+     * @operationId storefront.auth.register
+     * @tags Auth
+     * 
+     * @response 201 array{
+     *   success: true,
+     *   message: "User registered successfully",
+     *   token: string,
+     *   user: array{
+     *     id: int,
+     *     name: string,
+     *     email: string,
+     *     phone: ?string,
+     *     code: string,
+     *     created_at: string,
+     *     updated_at: string
+     *   }
+     * }
+     * 
+     * @response 422 {"message":"The given data was invalid.","errors":{"email":["The email has already been taken."]}}
      */
     public function register(Request $request)
     {
@@ -47,9 +64,26 @@ class AuthController extends Controller
     /**
      * Login customer
      *
-     * @requestMediaType application/json
-     * @body array{email: "john@example.com", password: "password"}
-     * @response array{success: true, message: "Login successful", token: "sanctum_token"}
+     * @summary Login customer
+     * @operationId storefront.auth.login
+     * @tags Auth
+     * 
+     * @response array{
+     *   success: true,
+     *   message: "Login successful",
+     *   token: string,
+     *   user: array{
+     *     id: int,
+     *     name: string,
+     *     email: string,
+     *     phone: ?string,
+     *     code: string,
+     *     created_at: string,
+     *     updated_at: string
+     *   }
+     * }
+     * 
+     * @response 422 {"message":"The given data was invalid.","errors":{"email":["Las credenciales proporcionadas son incorrectas."]}}
      */
     public function login(Request $request)
     {
@@ -79,7 +113,24 @@ class AuthController extends Controller
     /**
      * Get authenticated customer profile
      *
-     * @response Member
+     * @summary Get authenticated customer profile
+     * @operationId storefront.auth.me
+     * @tags Auth
+     * 
+     * @response array{
+     *   success: true,
+     *   data: array{
+     *     id: int,
+     *     name: string,
+     *     email: string,
+     *     phone: ?string,
+     *     code: string,
+     *     created_at: string,
+     *     updated_at: string
+     *   }
+     * }
+     * 
+     * @response 401 {"message":"Unauthenticated."}
      */
     public function me(Request $request)
     {
@@ -92,7 +143,12 @@ class AuthController extends Controller
     /**
      * Logout customer
      *
+     * @summary Logout customer
+     * @operationId storefront.auth.logout
+     * @tags Auth
+     * 
      * @response array{success: true, message: "Logged out"}
+     * @response 401 {"message":"Unauthenticated."}
      */
     public function logout(Request $request)
     {
