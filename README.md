@@ -172,16 +172,49 @@ For a single-store deployment without multi-tenancy:
    ```
    Login at: `http://localhost:8000/member/login`
 
-### Actualización en producción
-1) Trae cambios: `git pull`.
-2) Dependencias PHP: `composer install --no-dev --optimize-autoloader`.
-3) Migraciones (espera “Nothing to migrate.” si no hay nuevas): `php artisan migrate`.
-4) Multi-tenant (solo si aplica): `php artisan tenants:migrate --tenants=tu_tenant` o `--all`.
-5) Limpia cachés: `php artisan optimize:clear`.
+### Production Deployment Updates
 
-### Usuarios admin / “super admin”
-- **Multi-tenant (recomendado, APP_CENTRAL_DOMAIN definido)**: no hay panel central; cada tienda crea su propio usuario owner (rol `admin`) al registrarse. Administra desde `https://{tu-dominio-tenant}/member`.
-- **Standalone (APP_CENTRAL_DOMAIN vacío)**: ejecuta `php artisan app:create-user` para crear el owner inicial y entra por `APP_URL/member/login`. Este comando está bloqueado cuando hay dominio central configurado.
+1. **Pull latest changes**
+   ```bash
+   git pull
+   ```
+
+2. **Install PHP dependencies** (production optimized)
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+3. **Run central database migrations**
+   ```bash
+   php artisan migrate
+   ```
+   Expect "Nothing to migrate" if there are no new migrations.
+
+4. **Migrate tenant databases** (multi-tenant only)
+   ```bash
+   # Single tenant
+   php artisan tenants:migrate --tenants=your_tenant
+   
+   # All tenants
+   php artisan tenants:migrate --all
+   ```
+
+5. **Clear application caches**
+   ```bash
+   php artisan optimize:clear
+   ```
+
+### Admin User Management
+
+- **Multi-Tenant Mode** (Recommended, `APP_CENTRAL_DOMAIN` configured):
+  - No central admin panel exists
+  - Each tenant creates their own owner user (role: `admin`) during registration
+  - Access admin panel at: `https://{your-tenant-domain}/member`
+
+- **Standalone Mode** (`APP_CENTRAL_DOMAIN` empty):
+  - Run `php artisan app:create-user` to create the initial owner
+  - Login at: `{APP_URL}/member/login`
+  - Note: This command is blocked when central domain is configured
 
 ## Usage
 * api: localdomain.test/api/test
@@ -190,11 +223,37 @@ For a single-store deployment without multi-tenancy:
 * Scalar: localdomain.test/scalar (uses /docs/api.json)
 * OpenAPI JSON: /docs/api.json (generate with `php artisan scramble:export`; hard refresh Scalar to pick up changes)
 
-## Accesos y rutas (local)
-- **Dominio central (`http://localdomain.test:8000`)**: landing `/`, registro `/auth/register`, soporte PWA `/offline` y `/serviceworker.js`, API de registro `/api/domain/register`, ping `/api/test`. El grupo `/admin` está vacío.
-- **Landing**: sale de `resources/views/livewire/pages/welcome.blade.php` expuesto por `Volt::route('/', 'pages/welcome')` en `routes/web.php`.
-- **Dominio de tenant (ej. `http://tenantdemo.localdomain.test`)**: `/` redirige a `/member`; todo el panel/admin/POS vive bajo `/member/*` (login, dashboard, inventario, caja, etc.). Páginas extra: `/member/sellings/{selling}/print` (ticket), `/member/*-report/generate` (reportes PDF), `/reset-password/{token}` (reset).
-- **API tenant**: bajo `https://{tu-dominio-tenant}/api/*`. Incluye auth (`/api/auth/login`, `/api/auth/me`), maestros (`/api/master/product`, `/api/master/category`, `/api/master/member`, `/api/master/supplier`, `/api/master/payment-method`), transacciones (`/api/transaction/selling`, `/api/transaction/cash-drawer`), configuración (`/api/setting*`, `/api/setting/secure-initial-price*`), reportes (`/api/report/cashier`), impresoras (`/api/printer`), notificaciones (`/api/notification`), uploads temporales (`/api/temp/upload`), y `GET /api/check` para validar el tenant activo.
+## Routes & Access (Local Development)
+
+### Central Domain (`http://localdomain.test:8000`)
+- `/` - Landing page
+- `/auth/register` - Tenant registration
+- `/offline`, `/serviceworker.js` - PWA support
+- `/api/domain/register` - Tenant registration API
+- `/api/test` - Health check endpoint
+- `/admin/*` - Empty (no central admin panel)
+
+**Landing Page Source**: `resources/views/livewire/pages/welcome.blade.php` exposed via `Volt::route('/', 'pages/welcome')` in `routes/web.php`.
+
+### Tenant Domain (e.g., `http://tenantdemo.localdomain.test`)
+
+**Web Routes**:
+- `/` - Redirects to `/member`
+- `/member/*` - Admin panel (login, dashboard, inventory, POS, etc.)
+- `/member/sellings/{selling}/print` - Receipt printing
+- `/member/*-report/generate` - PDF report generation
+- `/reset-password/{token}` - Password reset
+
+**API Routes** (`/api/*`):
+- **Auth**: `/api/auth/login`, `/api/auth/me`
+- **Masters**: `/api/master/product`, `/api/master/category`, `/api/master/member`, `/api/master/supplier`, `/api/master/payment-method`
+- **Transactions**: `/api/transaction/selling`, `/api/transaction/cash-drawer`
+- **Settings**: `/api/setting*`, `/api/setting/secure-initial-price*`
+- **Reports**: `/api/report/cashier`
+- **Printers**: `/api/printer`
+- **Notifications**: `/api/notification`
+- **Uploads**: `/api/temp/upload`
+- **Health**: `/api/check` - Validates active tenant
 
 ## Creating Tenants (Multi-Tenant Mode)
 
