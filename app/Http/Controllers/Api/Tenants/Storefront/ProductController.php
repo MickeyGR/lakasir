@@ -26,8 +26,8 @@ class ProductController extends Controller
      * @queryParam sort string Sort by field. Prefix with - for descending. Allowed: name, selling_price, created_at. Example: -selling_price
      * @queryParam filter[name] string Filter by product name. Example: Laptop
      * @queryParam filter[category_id] integer Filter by category ID. Example: 5
-     * @queryParam filter[category.name] string Filter by category name. Example: Electronics
-     * @queryParam filter[type] string Filter by product type. Example: product
+     * @queryParam filter[category.name] string Filter by category name (exact match). Example: Electronics
+     * @queryParam filter[type] string Filter by product type. Allowed: product, service. Example: product
      * @queryParam filter[unit] string Filter by unit. Example: pcs
      * @queryParam filter[stock][gt] integer Filter stock greater than. Example: 10
      * @queryParam filter[stock][ge] integer Filter stock greater or equal. Example: 10
