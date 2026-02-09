@@ -17,6 +17,26 @@ https://mitienda.lakasir.com/api/storefront/
 
 ---
 
+## Nota Importante sobre Curl
+
+**IMPORTANTE**: Cuando uses `curl` con filtros que contienen corchetes `[]`, debes incluir la opción `-g` (globbing off) para evitar errores:
+
+```bash
+# ✅ CORRECTO - Con -g
+curl -g "https://mitienda.lakasir.com/api/storefront/products?filter[stock-gt]=0"
+
+# ❌ ERROR - Sin -g
+curl "https://mitienda.lakasir.com/api/storefront/products?filter[stock-gt]=0"
+# curl: (3) bad range in URL position...
+```
+
+Alternativamente, puedes usar comillas simples sin `-g`:
+```bash
+curl 'https://mitienda.lakasir.com/api/storefront/products?filter[stock-gt]=0'
+```
+
+---
+
 ## Formato de Respuesta Estándar
 
 Todas las respuestas exitosas siguen esta estructura:
@@ -152,7 +172,7 @@ Content-Type: application/json
 
 **Ejemplo curl**:
 ```bash
-curl -X POST "https://mitienda.lakasir.com/api/storefront/auth/register" \
+curl -g -X POST "https://mitienda.lakasir.com/api/storefront/auth/register" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Juan Pérez",
@@ -213,7 +233,7 @@ Content-Type: application/json
 
 **Ejemplo curl**:
 ```bash
-curl -X POST "https://mitienda.lakasir.com/api/storefront/auth/login" \
+curl -g -X POST "https://mitienda.lakasir.com/api/storefront/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "juan@example.com",
@@ -259,7 +279,7 @@ Authorization: Bearer {token}
 
 **Ejemplo curl**:
 ```bash
-curl -X GET "https://mitienda.lakasir.com/api/storefront/auth/me" \
+curl -g -X GET "https://mitienda.lakasir.com/api/storefront/auth/me" \
   -H "Authorization: Bearer 2|xyz789abc456def123ghi456jkl789"
 ```
 
@@ -293,7 +313,7 @@ Authorization: Bearer {token}
 
 **Ejemplo curl**:
 ```bash
-curl -X POST "https://mitienda.lakasir.com/api/storefront/auth/logout" \
+curl -g -X POST "https://mitienda.lakasir.com/api/storefront/auth/logout" \
   -H "Authorization: Bearer 2|xyz789abc456def123ghi456jkl789"
 ```
 
@@ -332,12 +352,12 @@ Obtiene la lista de productos visibles en la tienda.
 - `filter[global]` (string): Búsqueda global en nombre, SKU y código de barras. Ejemplo: `filter[global]=LAP-001`
 
 #### Filtros de Stock
-- `filter[stock][gt]` (integer): Stock mayor que. Ejemplo: `filter[stock][gt]=10`
-- `filter[stock][ge]` (integer): Stock mayor o igual que. Ejemplo: `filter[stock][ge]=10`
-- `filter[stock][lt]` (integer): Stock menor que. Ejemplo: `filter[stock][lt]=50`
-- `filter[stock][le]` (integer): Stock menor o igual que. Ejemplo: `filter[stock][le]=50`
-- `filter[stock][eq]` (integer): Stock igual a. Ejemplo: `filter[stock][eq]=20`
-- `filter[stock][ne]` (integer): Stock diferente de. Ejemplo: `filter[stock][ne]=0`
+- `filter[stock-gt]` (integer): Stock mayor que. Ejemplo: `filter[stock-gt]=10`
+- `filter[stock-ge]` (integer): Stock mayor o igual que. Ejemplo: `filter[stock-ge]=10`
+- `filter[stock-lt]` (integer): Stock menor que. Ejemplo: `filter[stock-lt]=50`
+- `filter[stock-le]` (integer): Stock menor o igual que. Ejemplo: `filter[stock-le]=50`
+- `filter[stock-eq]` (integer): Stock igual a. Ejemplo: `filter[stock-eq]=20`
+- `filter[stock-ne]` (integer): Stock diferente de. Ejemplo: `filter[stock-ne]=0`
 
 #### Includes (Relaciones)
 - `include` (string): Relaciones a incluir (separadas por coma).
@@ -407,22 +427,27 @@ Obtiene la lista de productos visibles en la tienda.
 
 **Ejemplo curl (Simple)**:
 ```bash
-curl "https://mitienda.lakasir.com/api/storefront/products"
+curl -g "https://mitienda.lakasir.com/api/storefront/products"
 ```
 
 **Ejemplo curl (Con filtros y ordenamiento)**:
 ```bash
-curl "https://mitienda.lakasir.com/api/storefront/products?per_page=20&sort=-selling_price&filter[category_id]=5&include=category,images"
+curl -g "https://mitienda.lakasir.com/api/storefront/products?per_page=20&sort=-selling_price&filter[category_id]=5&include=category,images"
 ```
 
 **Ejemplo curl (Búsqueda global)**:
 ```bash
-curl "https://mitienda.lakasir.com/api/storefront/products?filter[global]=laptop"
+curl -g "https://mitienda.lakasir.com/api/storefront/products?filter[global]=laptop"
+```
+
+**Ejemplo curl (Productos con stock)**:
+```bash
+curl -g "https://mitienda.lakasir.com/api/storefront/products?filter[stock-gt]=0"
 ```
 
 **Ejemplo curl (Productos con stock bajo)**:
 ```bash
-curl "https://mitienda.lakasir.com/api/storefront/products?filter[stock][lt]=10&sort=stock"
+curl -g "https://mitienda.lakasir.com/api/storefront/products?filter[stock-lt]=10&sort=stock"
 ```
 
 ---
@@ -496,7 +521,7 @@ Obtiene los detalles de un producto específico.
 
 **Ejemplo curl**:
 ```bash
-curl "https://mitienda.lakasir.com/api/storefront/products/101"
+curl -g "https://mitienda.lakasir.com/api/storefront/products/101"
 ```
 
 ---
