@@ -59,11 +59,17 @@ class ProductController extends Controller
     /**
      * Show a product details
      *
-     * @response ProductCollection
+     * @response array{
+     *   success: boolean,
+     *   data: \App\Http\Resources\ProductCollection,
+     *   message: ?string
+     * }
      */
-    public function show(Product $product)
+    public function show(int $id)
     {
-        if (!$product->show) {
+        $product = Product::find($id);
+        
+        if (!$product || !$product->show) {
              return $this->error('Product not found', 404);
         }
 
