@@ -132,18 +132,7 @@ return [
         RestrictedDocsAccess::class,
     ],
 
-    /*
-     * Global security schemes and defaults (applies to all endpoints).
-     */
-    'security_schemes' => [
-        'bearerAuth' => [
-            'type' => 'http',
-            'scheme' => 'bearer',
-            'bearerFormat' => 'JWT',
-        ],
-    ],
 
-    'default_security_schemes' => ['bearerAuth'],
 
     'extensions' => [],
 ];
