@@ -58,7 +58,15 @@ trait TableProduct
                         ->columnStart(0),
                     TextColumn::make('name')
                         ->size('lg')
-                        ->searchable(['sku', 'name', 'primaryBarcode.code'])
+                        ->searchable(query: function ($query, $search) {
+                            return $query->where(function ($q) use ($search) {
+                                $q->where('sku', 'like', "%{$search}%")
+                                    ->orWhere('name', 'like', "%{$search}%")
+                                    ->orWhereHas('barcodes', function ($barcodeQuery) use ($search) {
+                                        $barcodeQuery->where('code', 'like', "%{$search}%");
+                                    });
+                            });
+                        })
                         ->extraAttributes([
                             'class' => 'font-bold',
                         ]),
