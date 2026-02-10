@@ -18,6 +18,7 @@ class AboutService
                 'id' => About::first()?->getKey() ?? null,
             ], Arr::only($data, [
                 'shop_name',
+                'slogan',
                 'shop_location',
                 'business_type',
                 'other_business_type',

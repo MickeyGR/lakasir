@@ -23,6 +23,7 @@ class AboutResource extends JsonResource
 
         return [
             'shop_name' => $this?->shop_name ?? '',
+            'slogan' => $this?->slogan ?? '',
             'shop_location' => $this?->shop_location ?? '',
             'owner_name' => $owner->name ?? '',
             'business_type' => $this?->business_type ?? '',

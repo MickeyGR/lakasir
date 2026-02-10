@@ -29,6 +29,9 @@ class About extends Model
             TextInput::make('shop_name')
                 ->required()
                 ->translateLabel(),
+            TextInput::make('slogan')
+                ->label('Slogan')
+                ->translateLabel(),
             Select::make('business_type')
                 ->translateLabel()
                 ->options([

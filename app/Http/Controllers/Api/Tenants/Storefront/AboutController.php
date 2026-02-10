@@ -19,6 +19,7 @@ class AboutController extends Controller
      *   success: true,
      *   data: array{
      *     shop_name: "NicaPC",
+     *     slogan: "Tu tienda de confianza",
      *     shop_location: "Managua",
      *     owner_name: "MICKEY GUDIEL REYES",
      *     business_type: "other",

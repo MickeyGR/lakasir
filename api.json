@@ -83,6 +83,7 @@
                                         "success": true,
                                         "data": {
                                             "shop_name": "NicaPC",
+                                            "slogan": "Tu tienda de confianza",
                                             "shop_location": "Managua",
                                             "owner_name": "MICKEY GUDIEL REYES",
                                             "business_type": "other",
@@ -115,6 +116,12 @@
                                 "type": "object",
                                 "properties": {
                                     "shop_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "slogan": {
                                         "type": [
                                             "string",
                                             "null"
@@ -220,6 +227,7 @@
                                         "success": true,
                                         "data": {
                                             "shop_name": "NicaPC",
+                                            "slogan": "Tu tienda de confianza",
                                             "shop_location": "Managua",
                                             "owner_name": "MICKEY GUDIEL REYES",
                                             "business_type": "other",

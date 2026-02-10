@@ -431,6 +431,7 @@ class AppServiceProvider extends ServiceProvider
                     'success' => true,
                     'data' => [
                         'shop_name' => 'NicaPC',
+                        'slogan' => 'Tu tienda de confianza',
                         'shop_location' => 'Managua',
                         'owner_name' => 'MICKEY GUDIEL REYES',
                         'business_type' => 'other',
