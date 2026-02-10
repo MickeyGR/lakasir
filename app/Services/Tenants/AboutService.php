@@ -21,6 +21,11 @@ class AboutService
                 'shop_location',
                 'business_type',
                 'other_business_type',
+                'phone',
+                'facebook',
+                'messenger',
+                'website',
+                'linkedin',
             ]));
 
         $owner = User::owner()->first();

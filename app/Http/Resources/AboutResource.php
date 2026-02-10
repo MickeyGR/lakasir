@@ -27,6 +27,11 @@ class AboutResource extends JsonResource
             'owner_name' => $owner->name ?? '',
             'business_type' => $this?->business_type ?? '',
             'other_business_type' => $this?->other_business_type ?? '',
+            'phone' => $this?->phone ?? '',
+            'facebook' => $this?->facebook ?? '',
+            'messenger' => $this?->messenger ?? '',
+            'website' => $this?->website ?? '',
+            'linkedin' => $this?->linkedin ?? '',
             'currency' => Setting::get('currency') ?? 'IDR',
             'photo_url' => $this?->photo ?? '',
         ];

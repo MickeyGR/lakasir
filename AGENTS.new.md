@@ -319,6 +319,44 @@ curl -g -X POST "https://mitienda.lakasir.com/api/storefront/auth/logout" \
 
 ---
 
+## Endpoints de Tienda (Públicos)
+
+### 1. About de la Tienda
+
+Obtiene la información pública de la tienda.
+
+**Endpoint**: `GET /storefront/about`
+
+**Headers**: Ninguno (público)
+
+**Respuesta Exitosa (200)**:
+```json
+{
+  "success": true,
+  "data": {
+    "shop_name": "NicaPC",
+    "shop_location": "Managua",
+    "owner_name": "MICKEY GUDIEL REYES",
+    "business_type": "other",
+    "other_business_type": "Computo",
+    "phone": "+50589897898",
+    "facebook": "https://facebook.com/nicapc",
+    "messenger": "nicapc",
+    "website": "https://nicapc.com",
+    "linkedin": "https://linkedin.com/company/nicapc",
+    "currency": "NIO",
+    "photo_url": ""
+  }
+}
+```
+
+**Ejemplo curl**:
+```bash
+curl -g "https://mitienda.lakasir.com/api/storefront/about"
+```
+
+---
+
 ## Endpoints de Productos (Públicos)
 
 ### 1. Listar Productos

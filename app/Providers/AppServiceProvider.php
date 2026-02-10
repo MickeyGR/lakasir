@@ -427,6 +427,24 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
+                $aboutExample = [
+                    'success' => true,
+                    'data' => [
+                        'shop_name' => 'NicaPC',
+                        'shop_location' => 'Managua',
+                        'owner_name' => 'MICKEY GUDIEL REYES',
+                        'business_type' => 'other',
+                        'other_business_type' => 'Computo',
+                        'phone' => '+50589897898',
+                        'facebook' => 'https://facebook.com/nicapc',
+                        'messenger' => 'nicapc',
+                        'website' => 'https://nicapc.com',
+                        'linkedin' => 'https://linkedin.com/company/nicapc',
+                        'currency' => 'NIO',
+                        'photo_url' => '',
+                    ],
+                ];
+
                 // Example for GET /api/about
                 foreach ($openApi->paths as $path) {
                     if ($path->path !== 'about') {
@@ -435,18 +453,7 @@ class AppServiceProvider extends ServiceProvider
 
                     if ($operation = $path->operations['get'] ?? null) {
                         $schema = Schema::fromType(
-                            (new ObjectType)->example([
-                                'success' => true,
-                                'data' => [
-                                    'shop_name' => 'NicaPC',
-                                    'shop_location' => 'Managua',
-                                    'owner_name' => 'MICKEY GUDIEL REYES',
-                                    'business_type' => 'other',
-                                    'other_business_type' => 'Computo',
-                                    'currency' => 'NIO',
-                                    'photo_url' => '',
-                                ],
-                            ])
+                            (new ObjectType)->example($aboutExample)
                         );
 
                         $operation->responses = [
@@ -467,6 +474,25 @@ class AppServiceProvider extends ServiceProvider
                         $operation->responses = [
                             Response::make(200)
                                 ->setDescription('Store profile updated')
+                                ->setContent('application/json', $schema),
+                        ];
+                    }
+                }
+
+                // Example for GET /api/storefront/about
+                foreach ($openApi->paths as $path) {
+                    if ($path->path !== 'storefront/about') {
+                        continue;
+                    }
+
+                    if ($operation = $path->operations['get'] ?? null) {
+                        $schema = Schema::fromType(
+                            (new ObjectType)->example($aboutExample)
+                        );
+
+                        $operation->responses = [
+                            Response::make(200)
+                                ->setDescription('Store profile')
                                 ->setContent('application/json', $schema),
                         ];
                     }

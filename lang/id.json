@@ -369,5 +369,15 @@
     "Import product": "Impor produk",
     "Point the cursor to this input first then scan the barcode": "Arahkan kursor ke input ini dan lalu scan barkodenya",
     "Profile": "Profil",
-    "Language": "Bahasa"
+    "Language": "Bahasa",
+    "Feature": "Fitur",
+    "Other (specify)": "Lainnya (jelaskan)",
+    "Phone number": "Nomor telepon",
+    "Facebook": "Facebook",
+    "Messenger": "Messenger",
+    "Website": "Situs web",
+    "LinkedIn": "LinkedIn",
+    "Stock opname": "Stok opname",
+    "POS V2": "POS V2",
+    "Product import": "Impor produk"
 }

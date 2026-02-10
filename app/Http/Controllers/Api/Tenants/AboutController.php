@@ -26,6 +26,11 @@ class AboutController extends Controller
             'business_type' => ['required', 'in:retail,wholesale,fnb,fashion,pharmacy,other'],
             'other_business_type' => ['required_if:business_type,other'],
             'owner_name' => ['nullable', 'string'],
+            'phone' => ['nullable', 'string'],
+            'facebook' => ['nullable', 'string'],
+            'messenger' => ['nullable', 'string'],
+            'website' => ['nullable', 'string'],
+            'linkedin' => ['nullable', 'string'],
         ]);
 
         $aboutService->createOrUpdate($request->all());

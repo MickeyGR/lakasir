@@ -139,13 +139,13 @@ class GeneralSetting extends Page implements HasActions, HasForms
                         ->translateLabel()
                         ->schema([
                             Section::make([
-                                Checkbox::make('supplier')->inline(),
-                                Checkbox::make('purchasing')->inline(),
-                                Checkbox::make('receivable')->inline(),
-                                Checkbox::make('stock-opname')->inline(),
-                                Checkbox::make('voucher')->inline(),
-                                Checkbox::make('pos-v2')->label("POS V2")->inline(),
-                                Checkbox::make('product-import')->inline(),
+                                Checkbox::make('supplier')->inline()->translateLabel(),
+                                Checkbox::make('purchasing')->inline()->translateLabel(),
+                                Checkbox::make('receivable')->inline()->translateLabel(),
+                                Checkbox::make('stock-opname')->label('Stock opname')->inline()->translateLabel(),
+                                Checkbox::make('voucher')->inline()->translateLabel(),
+                                Checkbox::make('pos-v2')->label('POS V2')->inline()->translateLabel(),
+                                Checkbox::make('product-import')->label('Product import')->inline()->translateLabel(),
                             ]),
                             Actions::make([
                                 Action::make('Save')

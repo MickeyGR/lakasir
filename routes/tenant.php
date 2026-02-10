@@ -224,6 +224,9 @@ Route::middleware($apiMiddleware)
 
         // Storefront API Routes (Public & Member Auth)
         Route::group(['prefix' => 'storefront'], function () {
+            // Public About
+            Route::get('/about', [\App\Http\Controllers\Api\Tenants\Storefront\AboutController::class, 'index']);
+
             // Public Categories
             Route::get('/categories', [\App\Http\Controllers\Api\Tenants\Storefront\CategoryController::class, 'index']);
             

@@ -42,12 +42,29 @@ class About extends Model
                 ->live()
                 ->required(),
             TextInput::make('other_business_type')
-                ->label('Lainnya')
+                ->label('Other (specify)')
+                ->translateLabel()
                 ->visible(fn (Get $get): bool => $get('business_type') == 'other')
                 ->required(fn (Get $get): bool => $get('business_type') == 'other')
                 ->string(),
             Textarea::make('shop_location')
                 ->required()
+                ->translateLabel(),
+            TextInput::make('phone')
+                ->label('Phone number')
+                ->translateLabel()
+                ->tel(),
+            TextInput::make('facebook')
+                ->label('Facebook')
+                ->translateLabel(),
+            TextInput::make('messenger')
+                ->label('Messenger')
+                ->translateLabel(),
+            TextInput::make('website')
+                ->label('Website')
+                ->translateLabel(),
+            TextInput::make('linkedin')
+                ->label('LinkedIn')
                 ->translateLabel(),
             FileUpload::make('photo')
                 ->disk('public')
