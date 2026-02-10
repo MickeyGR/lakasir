@@ -74,14 +74,14 @@ class ProductController extends Controller
             ->allowedFilters([
                 'name',
                 'category_id',
-                'sellingPrice',
+                AllowedFilter::exact('sellingPrice', 'selling_price'),
                 // 'initialPrice', // Maybe hide initial price filter?
                 'type',
                 'category.name',
                 'unit',
                 // 'show', // Force show=1
                 ...ComparisonFilter::setFilters('stock', ['gt', 'ge', 'lt', 'le', 'eq', 'ne']),
-                AllowedFilter::custom('global', new SearchFields, 'name,sku,barcode'),
+                AllowedFilter::custom('global', new SearchFields, 'name,sku,barcodes.code'),
             ])
             ->allowedIncludes(['category', 'images'])
             ->allowedSorts(['name', 'selling_price', 'created_at']) // Removed initial_price sort

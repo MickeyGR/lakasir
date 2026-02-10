@@ -47,15 +47,19 @@ class StatsProduct extends BaseWidget
                 ->color(Color::Yellow);
         }
 
-        return [
-            $stock,
-            Stat::make(__('Sold'), $selingDetail->sold ?? 0),
-            Stat::make(__('Revenue'), Number::abbreviate(
-                ($selingDetail->price ?? 0) - ($selingDetail->cost ?? 0),
-            )),
-            Stat::make(__('Discount'), Number::abbreviate(
-                $selingDetail->discount_price ?? 0
-            )),
-        ];
+        $stats = [];
+        if ($stock) {
+            $stats[] = $stock;
+        }
+
+        $stats[] = Stat::make(__('Sold'), $selingDetail->sold ?? 0);
+        $stats[] = Stat::make(__('Revenue'), Number::abbreviate(
+            ($selingDetail->price ?? 0) - ($selingDetail->cost ?? 0),
+        ));
+        $stats[] = Stat::make(__('Discount'), Number::abbreviate(
+            $selingDetail->discount_price ?? 0
+        ));
+
+        return $stats;
     }
 }

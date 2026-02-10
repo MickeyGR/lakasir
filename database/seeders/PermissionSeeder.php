@@ -8,18 +8,27 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role as ModelsRole;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
     public function run()
     {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
         $this->deletePermission();
         $permissions = $this->getPermissions();
         $permissions->each(fn ($roles) => $this->savePermission($roles));
 
         if ($user = User::first()) {
-            $user->assignRole(Role::admin);
+            $adminRole = ModelsRole::firstOrCreate([
+                'name' => Role::admin,
+                'guard_name' => 'web',
+            ]);
+            if (! $user->hasRole($adminRole)) {
+                $user->assignRole($adminRole);
+            }
         }
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
     private function crudRolePermission(): array
@@ -313,7 +322,10 @@ class PermissionSeeder extends Seeder
     private function givePermissionToRole($role, $permission): void
     {
         /** @var ModelsRole $role */
-        $role = ModelsRole::where('name', $role[0])->firstOrCreate(['name' => $role[0]]);
+        $role = ModelsRole::firstOrCreate([
+            'name' => $role[0],
+            'guard_name' => $permission->guard_name,
+        ]);
         $role->permissions()->syncWithoutDetaching($permission);
     }
 

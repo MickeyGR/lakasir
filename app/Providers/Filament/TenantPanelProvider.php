@@ -89,11 +89,13 @@ class TenantPanelProvider extends PanelProvider
     {
         $panel = $this->configurePanel($panel);
 
-        $url = request()->getHost();
-        if ($this->isCentralDomainConfigured()) {
-            $this->initializeTenantPanel($panel, $url);
-        } else {
-            $this->initializeDefaultPanel($panel);
+        if (! app()->runningInConsole()) {
+            $url = request()->getHost();
+            if ($this->isCentralDomainConfigured()) {
+                $this->initializeTenantPanel($panel, $url);
+            } else {
+                $this->initializeDefaultPanel($panel);
+            }
         }
 
         FilamentView::registerRenderHook(
@@ -238,6 +240,12 @@ class TenantPanelProvider extends PanelProvider
 
     private function initializeTenantPanel(Panel $panel, string $url): void
     {
+        // During first deploy, central tenancy tables may not exist yet.
+        // Avoid boot-time queries before migrations run.
+        if (! Schema::hasTable('tenants') || ! Schema::hasTable('domains')) {
+            return;
+        }
+
         $tenant = Tenant::whereHas('domains', fn ($query) => $query->where('domain', $url))->first();
 
         if ($tenant) {

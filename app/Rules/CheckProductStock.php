@@ -38,10 +38,31 @@ class CheckProductStock implements DataAwareRule, ValidationRule
         if ($product->is_non_stock) {
             return;
         }
+        $requestedQty = (float) $value;
         if (isset($dataProduct['price_unit_id']) && $dataProduct['price_unit_id'] != null) {
-            $value = PriceUnit::query()->find($dataProduct['price_unit_id'])->stock * $dataProduct['qty'];
+            $priceUnit = PriceUnit::query()->find($dataProduct['price_unit_id']);
+            if (! $priceUnit) {
+                $fail('The selected price unit is invalid.');
+
+                return;
+            }
+            if ((int) $priceUnit->product_id !== (int) $product->id) {
+                $fail('The selected price unit does not belong to the selected product.');
+
+                return;
+            }
+            if ((float) $priceUnit->stock <= 0) {
+                $fail('The selected price unit has invalid stock conversion value.');
+
+                return;
+            }
+
+            $requestedQty = $priceUnit->stock * $dataProduct['qty'];
         }
-        $bool = $product?->stock < $value;
+        $availableStock = $product->stocks()->exists()
+            ? (float) $product->stocks()->sum('stock')
+            : (float) $product->stock;
+        $bool = $availableStock < $requestedQty;
 
         if ($bool) {
             $fail($this->message());

@@ -25,8 +25,9 @@ class PriceUnitsRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('stock')
                     ->translateLabel()
-                    ->helperText(__('Amount that sold or that filled in unit'))
+                    ->helperText(__('Amount that sold or that filled in unit. Must be greater than 0'))
                     ->numeric()
+                    ->rule('gt:0')
                     ->visible(Feature::active(ProductStock::class))
                     ->disabled(function ($get) {
                         return $get('is_non_stock') || $get('type') == 'service';

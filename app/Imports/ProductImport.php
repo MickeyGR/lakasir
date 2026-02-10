@@ -28,12 +28,30 @@ class ProductImport implements SkipsEmptyRows, ToModel, WithHeadingRow
             'name' => $row['name'],
             'category_id' => $category->id,
             'unit' => $row['unit'],
-            'barcode' => (int) $row['barcode'],
             'stock' => (int) $row['stock'],
             'initial_price' => $row['initial_price'] ?? 0,
             'selling_price' => $row['selling_price'] ?? 0,
             'type' => $row['type'] ?? 'product',
         ]);
+
+        $barcode = isset($row['barcode']) ? trim((string) $row['barcode']) : '';
+        if ($barcode !== '') {
+            $primaryBarcode = $product->barcodes()->primary()->active()->first();
+            if ($primaryBarcode) {
+                $primaryBarcode->update([
+                    'code' => $barcode,
+                    'type' => 'primary',
+                    'is_active' => true,
+                ]);
+            } else {
+                $product->barcodes()->create([
+                    'code' => $barcode,
+                    'type' => 'primary',
+                    'description' => __('Imported barcode'),
+                    'is_active' => true,
+                ]);
+            }
+        }
 
         if (isset($row['other_price']) && $row['other_price'] != null && $row['other_price'] != '') {
             $dataOtherPrice = Str::of($row['other_price'])->explode(',');

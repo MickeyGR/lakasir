@@ -20,7 +20,18 @@ trait HasPurchasingForm
                 ->native(false)
                 ->placeholder(__('Search...'))
                 ->relationship(name: $product, titleAttribute: 'name')
-                ->searchable(['sku', 'name', 'barcode'])
+                ->searchable()
+                ->getSearchResultsUsing(function (string $search): array {
+                    return Product::query()
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('sku', 'like', "%{$search}%")
+                        ->orWhereHas('barcodes', function ($barcodeQuery) use ($search) {
+                            $barcodeQuery->where('code', 'like', "%{$search}%");
+                        })
+                        ->limit(50)
+                        ->pluck('name', 'id')
+                        ->toArray();
+                })
                 ->live()
                 ->afterStateUpdated(function (Set $set, ?string $state) {
                     $product = Product::find($state);

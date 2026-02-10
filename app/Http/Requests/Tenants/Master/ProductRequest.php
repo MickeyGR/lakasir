@@ -7,6 +7,7 @@ use App\Features\ProductStock;
 use App\Models\Tenants\Category;
 use App\Models\Tenants\Product;
 use App\Models\Tenants\ProductImage;
+use App\Rules\UniqueBarcode;
 use App\Services\Tenants\ProductService;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
@@ -49,8 +50,11 @@ class ProductRequest extends FormRequest
             ]);
         }
 
+        $primaryBarcodeId = null;
+
         if ($this->method() == 'PUT') {
             $product = Product::findorfail($this->route('product'));
+            $primaryBarcodeId = $product->barcodes()->primary()->active()->value('id');
             $this->merge([
                 'sku' => $this->filled('sku') ? $this->sku : $product->sku,
                 'barcode' => $this->filled('barcode') ? $this->barcode : $product->barcodes()->primary()->active()->value('code'),
@@ -70,7 +74,7 @@ class ProductRequest extends FormRequest
 
         return [
             'sku' => ['nullable', Rule::unique(Product::class)->ignore($this->route('product'))],
-            'barcode' => ['nullable', 'min:3', Rule::unique(Product::class)->ignore($this->route('product'))],
+            'barcode' => ['nullable', 'min:3', new UniqueBarcode($primaryBarcodeId)],
             'name' => ['required', 'min:3'],
             'category' => ['required'],
             'stock' => ['numeric', Rule::requiredIf(! $isNonStock)],
@@ -93,6 +97,7 @@ class ProductRequest extends FormRequest
             $product->fill($this->merging());
             $product->save();
             $this->uploadImage($product);
+            $this->syncPrimaryBarcode($product);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -108,6 +113,7 @@ class ProductRequest extends FormRequest
             $product->fill($this->merging());
             $product->update();
             $this->uploadImage($product);
+            $this->syncPrimaryBarcode($product);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -119,7 +125,7 @@ class ProductRequest extends FormRequest
     {
         return $this->merge([
             'category_id' => Category::findorfail($this->category)->id,
-        ])->except('category', 'images');
+        ])->except('category', 'images', 'barcode');
     }
 
     private function images(): ?array
@@ -135,6 +141,33 @@ class ProductRequest extends FormRequest
             $product->hero_images = $heroImages;
             $product->save();
         }
+    }
+
+    private function syncPrimaryBarcode(Product $product): void
+    {
+        if (! $this->filled('barcode')) {
+            return;
+        }
+
+        $barcode = $this->barcode;
+        $existing = $product->barcodes()->primary()->active()->first();
+
+        if ($existing) {
+            $existing->update([
+                'code' => $barcode,
+                'type' => 'primary',
+                'is_active' => true,
+            ]);
+
+            return;
+        }
+
+        $product->barcodes()->create([
+            'code' => $barcode,
+            'type' => 'primary',
+            'description' => __('Barcode from API'),
+            'is_active' => true,
+        ]);
     }
 
     public function deleteImages(): void

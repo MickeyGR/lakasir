@@ -126,8 +126,8 @@ class ViewStockOpname extends ViewRecord
             return;
         }
 
-        /** @var Product $product */
-        $product = Product::where('barcode', $barcode)->orWhere('sku', $barcode)->first();
+        /** @var Product|null $product */
+        $product = Product::findByBarcodeOrSku($barcode);
         if (! $product) {
             Notification::make()
                 ->title(__('Product not found'))

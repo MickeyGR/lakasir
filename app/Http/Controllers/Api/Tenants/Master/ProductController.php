@@ -44,14 +44,14 @@ class ProductController extends Controller
             ->allowedFilters([
                 'name',
                 'category_id',
-                'sellingPrice',
-                'initialPrice',
+                AllowedFilter::exact('sellingPrice', 'selling_price'),
+                AllowedFilter::exact('initialPrice', 'initial_price'),
                 'type',
                 'category.name',
                 'unit',
                 'show',
                 ...ComparisonFilter::setFilters('stock', ['gt', 'ge', 'lt', 'le', 'eq', 'ne']),
-                AllowedFilter::custom('global', new SearchFields, 'name,sku,barcode'),
+                AllowedFilter::custom('global', new SearchFields, 'name,sku,barcodes.code'),
             ])
             ->allowedIncludes(['category', 'images'])
             ->allowedSorts(['name', 'selling_price', 'initial_price', 'created_at'])

@@ -8,6 +8,7 @@ use App\Models\Tenants\Product;
 use App\Models\Tenants\Selling;
 use App\Models\Tenants\SellingDetail;
 use App\Services\Tenants\StockService;
+use RuntimeException;
 
 class AssignProduct
 {
@@ -34,6 +35,14 @@ class AssignProduct
 
             /** @var Product $product */
             $product = Product::find($productRequest['product_id']);
+            if ($priceUnit) {
+                if ((int) $priceUnit->product_id !== (int) $product->id) {
+                    throw new RuntimeException('Selected price unit does not belong to product.');
+                }
+                if ((float) $priceUnit->stock <= 0) {
+                    throw new RuntimeException('Selected price unit has invalid stock conversion value.');
+                }
+            }
             if (! $product->is_non_stock) {
                 if ($priceUnit) {
                     $this->reduceStock($product, $priceUnit->stock * $productRequest['qty']);

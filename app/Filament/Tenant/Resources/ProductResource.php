@@ -42,7 +42,7 @@ class ProductResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'sku', 'barcode'];
+        return ['name', 'sku', 'barcodes.code'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -74,7 +74,15 @@ class ProductResource extends Resource
                     ->searchable(),
                 TextColumn::make('name')
                     ->translateLabel()
-                    ->searchable(['sku', 'name', 'barcode']),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $query) use ($search) {
+                            $query->where('sku', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%")
+                                ->orWhereHas('barcodes', function (Builder $barcodeQuery) use ($search) {
+                                    $barcodeQuery->where('code', 'like', "%{$search}%");
+                                });
+                        });
+                    }),
                 TextColumn::make('sku')
                     ->searchable()
                     ->toggleable()

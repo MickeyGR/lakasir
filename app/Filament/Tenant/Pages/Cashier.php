@@ -258,6 +258,7 @@ class Cashier extends Page implements HasForms, HasTable
             'friend_price' => ['required', 'boolean'],
             'products' => ['required', 'array'],
             'products.*.product_id' => ['required', 'exists:products,id'],
+            'products.*.price_unit_id' => ['nullable', 'exists:price_units,id'],
             'products.*.price' => ['required_if:friend_price,true', 'numeric'],
             'products.*.qty' => ['required', 'numeric', 'min:1', new CheckProductStock],
         ]);

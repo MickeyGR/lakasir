@@ -4,10 +4,12 @@ namespace App\Services;
 
 use App\Constants\Role;
 use App\Models\Tenants\About;
+use App\Models\Tenants\Role as TenantRole;
 use App\Models\Tenants\User;
 use App\Notifications\DomainCreated;
 use App\Tenant;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\PermissionRegistrar;
 
 class RegisterTenant
 {
@@ -49,7 +51,15 @@ class RegisterTenant
             Artisan::call('db:seed', [
                 '--class' => 'CategorySeeder',
             ]);
-            $user->assignRole(Role::admin);
+
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+            $adminRole = TenantRole::firstOrCreate([
+                'name' => Role::admin,
+                'guard_name' => 'web',
+            ]);
+            if (! $user->hasRole($adminRole)) {
+                $user->assignRole($adminRole);
+            }
         });
 
         return $tenant;
