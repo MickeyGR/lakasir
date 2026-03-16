@@ -6,4 +6,5 @@ cmds = [
   "...",
   "php artisan storage:link || true",
   "php artisan optimize:clear",
+  "php artisan optimize",
 ]

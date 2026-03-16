@@ -210,10 +210,21 @@ Para un despliegue de tienda única sin multi-tenancy:
    php artisan tenants:migrate --all
    ```
 
-5. **Limpiar cachés de aplicación**
+5. **Limpiar y reconstruir cachés de aplicación**
    ```bash
    php artisan optimize:clear
+   php artisan optimize
    ```
+
+### Coolify
+
+Si un redeploy en Coolify deja la aplicación en blanco hasta ejecutar los comandos manualmente, configura este valor en **Post-deployment Command**:
+
+```bash
+sh scripts/coolify-post-deploy.sh
+```
+
+El repositorio ya incluye ese script para que el reseteo de cachés ocurra después de que Coolify monte el almacenamiento persistente.
 
 ### Gestión de Usuarios Admin
 

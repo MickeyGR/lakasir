@@ -211,10 +211,21 @@ For a single-store deployment without multi-tenancy:
    php artisan tenants:migrate --all
    ```
 
-5. **Clear application caches**
+5. **Clear and rebuild application caches**
    ```bash
    php artisan optimize:clear
+   php artisan optimize
    ```
+
+### Coolify
+
+If a Coolify redeploy shows a blank page until you run the cache commands manually, add this as the application's **Post-deployment Command**:
+
+```bash
+sh scripts/coolify-post-deploy.sh
+```
+
+This project already ships that script so the cache reset happens after Coolify mounts persistent storage.
 
 ### Admin User Management
 
