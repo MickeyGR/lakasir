@@ -70,6 +70,7 @@ class Profile extends Model
                 ]),
             FileUpload::make('photo')
                 ->disk('public')
+                ->directory('profile')
                 ->visible(feature('edit-profile'))
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')

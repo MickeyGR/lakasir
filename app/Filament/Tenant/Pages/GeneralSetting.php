@@ -24,6 +24,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -186,14 +187,9 @@ class GeneralSetting extends Page implements HasActions, HasForms
             // 'data.photo' => 'required',
         ]);
 
-        if (isset($this->about['photo']) && $this->about['photo'] != null && array_values($this->about['photo'])[0] instanceof TemporaryUploadedFile) {
-            /** @var TemporaryUploadedFile $image */
-            $image = array_values($this->about['photo'])[0];
-            $image->storePubliclyAs('public', $image->getFilename());
-            $url = optional(Storage::disk('public'))->url($image->getFilename());
-            $this->about['photo_url'] = $url;
-            $this->about['photo'] = null;
-        }
+        $this->about['photo_url'] = $this->resolvePhotoUrl($this->about['photo'] ?? null);
+        unset($this->about['photo']);
+
         $aboutService->createOrUpdate($this->about);
 
         Notification::make()
@@ -237,58 +233,27 @@ class GeneralSetting extends Page implements HasActions, HasForms
         /** @var User $user */
         $user = auth()->user();
         $profile = $user->profile;
+        $photoUrl = feature('edit-profile')
+            ? $this->resolvePhotoUrl($this->profile['photo'] ?? null)
+            : $profile->photo;
+
+        $user->update(Arr::except(Arr::only($this->profile, [
+            'name',
+            'email',
+            'password',
+        ]), [
+            'password_confirmation',
+        ]));
+
+        $profile->update(Arr::only($this->profile, [
+            'phone',
+            'address',
+            'locale',
+            'timezone',
+        ]));
 
         if (feature('edit-profile')) {
-            if (isset($this->profile['photo']) && $this->profile['photo'] != null && array_values($this->profile['photo'])[0] instanceof TemporaryUploadedFile) {
-                /** @var TemporaryUploadedFile $image */
-                $image = array_values($this->profile['photo'])[0];
-                $image->storePubliclyAs('public', $image->getFilename());
-                $url = optional(Storage::disk('public'))->url($image->getFilename());
-                $this->profile['photo_url'] = $url;
-                $this->profile['photo'] = null;
-            }
-        }
-
-        if (isset($this->profile['password']) && $this->profile['password'] != '') {
-            $this->profile['password'] = bcrypt($this->profile['password']);
-        }
-
-        $user->update($this->profile);
-        $profile->update($this->profile);
-
-        if (feature('edit-profile')) {
-            $data = $this->profile;
-
-            if (isset($data['photo_url']) && $data['photo_url'] !== $profile->photo) {
-                /** @var \App\Models\Tenants\UploadedFile $tmpFile */
-                $tmpFile = UploadedFile::where('url', $data['photo_url'])->first();
-                $url = $data['photo_url'];
-                if ($tmpFile) {
-                    $url = $tmpFile->moveToPuplic('profile', $profile->photo ? Str::of($profile->photo)->after('profile/') : null);
-                }
-                $profile->update([
-                    'photo' => $url,
-                ]);
-            }
-
-            if (! isset($data['photo_url'])) {
-                /** @var \App\Models\Tenants\UploadedFile $tmpFile */
-                $tmpFile = UploadedFile::where('url', $profile->photo)->first();
-                if ($tmpFile) {
-                    $tmpFile->deleteFromPublic('');
-                } else {
-                    $path = parse_url($profile->photo, PHP_URL_PATH); // Get the path from the URL
-                    $path = str(ltrim($path, '/'))->remove('storage');
-                    $exists = optional(Storage::disk('public'))->has($path);
-                    if ($exists) {
-                        Storage::disk('public')->delete($path);
-                    }
-                }
-
-                $profile->update([
-                    'photo' => null,
-                ]);
-            }
+            $this->syncPhoto($profile, $photoUrl);
         }
 
         Notification::make()
@@ -297,5 +262,92 @@ class GeneralSetting extends Page implements HasActions, HasForms
             ->send();
 
         $this->mount();
+    }
+
+    private function resolvePhotoUrl(array|string|null $state): ?string
+    {
+        if (blank($state)) {
+            return null;
+        }
+
+        $files = is_array($state) ? array_values(array_filter($state)) : [$state];
+
+        foreach (array_reverse($files) as $file) {
+            if ($file instanceof TemporaryUploadedFile) {
+                $path = $file->store('profile', 'public');
+
+                return Storage::disk('public')->url($path);
+            }
+
+            if (! is_string($file) || $file === '') {
+                continue;
+            }
+
+            if (Str::startsWith($file, ['http://', 'https://'])) {
+                return $file;
+            }
+
+            $path = ltrim((string) Str::of($file)->after('/storage/'), '/');
+
+            if ($path !== '') {
+                return Storage::disk('public')->url($path);
+            }
+        }
+
+        return null;
+    }
+
+    private function syncPhoto(About|Profile $record, ?string $photoUrl): void
+    {
+        if ($photoUrl === $record->photo) {
+            return;
+        }
+
+        if (blank($photoUrl)) {
+            $this->deletePhoto($record->photo);
+
+            if ($record->photo !== null) {
+                $record->update([
+                    'photo' => null,
+                ]);
+            }
+
+            return;
+        }
+
+        /** @var UploadedFile|null $tmpFile */
+        $tmpFile = UploadedFile::where('url', $photoUrl)->first();
+
+        if ($tmpFile) {
+            $photoUrl = $tmpFile->moveToPuplic('profile', $record->photo ? Str::of($record->photo)->after('profile/') : null);
+        } else {
+            $this->deletePhoto($record->photo);
+        }
+
+        $record->update([
+            'photo' => $photoUrl,
+        ]);
+    }
+
+    private function deletePhoto(?string $photoUrl): void
+    {
+        if (blank($photoUrl)) {
+            return;
+        }
+
+        /** @var UploadedFile|null $uploadedFile */
+        $uploadedFile = UploadedFile::where('url', $photoUrl)->first();
+
+        if ($uploadedFile) {
+            $uploadedFile->deleteFromPublic('profile');
+
+            return;
+        }
+
+        $path = ltrim((string) Str::of(parse_url($photoUrl, PHP_URL_PATH) ?? '')->after('/storage/'), '/');
+
+        if ($path !== '' && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }
