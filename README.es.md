@@ -218,13 +218,15 @@ Para un despliegue de tienda única sin multi-tenancy:
 
 ### Coolify
 
-Si un redeploy en Coolify deja la aplicación en blanco hasta ejecutar los comandos manualmente, configura este valor en **Post-deployment Command**:
+Este repositorio ahora ejecuta el reseteo de cachés de Laravel automáticamente cuando un contenedor Nixpacks/Coolify arranca.
+
+Si igual quieres un respaldo desde la UI de Coolify, configura este valor en **Post-deployment Command**:
 
 ```bash
-sh scripts/coolify-post-deploy.sh
+sh /app/scripts/coolify-post-deploy.sh
 ```
 
-El repositorio ya incluye ese script para que el reseteo de cachés ocurra después de que Coolify monte el almacenamiento persistente.
+Eso sirve cuando un servicio existente sigue usando una imagen anterior o si quieres forzar el mismo reseteo directamente desde el panel de Coolify.
 
 ### Gestión de Usuarios Admin
 

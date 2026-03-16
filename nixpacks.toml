@@ -6,5 +6,7 @@ cmds = [
   "...",
   "php artisan storage:link || true",
   "php artisan optimize:clear",
-  "php artisan optimize",
 ]
+
+[start]
+cmd = "sh /app/scripts/coolify-start.sh"

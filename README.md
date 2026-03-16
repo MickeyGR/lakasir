@@ -219,13 +219,15 @@ For a single-store deployment without multi-tenancy:
 
 ### Coolify
 
-If a Coolify redeploy shows a blank page until you run the cache commands manually, add this as the application's **Post-deployment Command**:
+This repository now runs the Laravel cache reset automatically when a Nixpacks/Coolify container starts.
+
+If you still want a fallback in the Coolify UI, add this as the application's **Post-deployment Command**:
 
 ```bash
-sh scripts/coolify-post-deploy.sh
+sh /app/scripts/coolify-post-deploy.sh
 ```
 
-This project already ships that script so the cache reset happens after Coolify mounts persistent storage.
+That is useful when an existing service is still using an older image or if you want to force the same reset from the Coolify panel.
 
 ### Admin User Management
 
