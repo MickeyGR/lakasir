@@ -14,11 +14,16 @@ trait HasUploadFileField
 
         $shouldFetchFileInformation = $component->shouldFetchFileInformation();
 
-        $file = str($file)->remove('/storage');
+        $path = parse_url($file, PHP_URL_PATH) ?: $file;
+        $relativePath = ltrim((string) str($path)->after('/storage/')->after('/tmp/'), '/');
+
+        if ($relativePath === '') {
+            $relativePath = ltrim((string) str($path)->remove('/storage')->remove('/tmp'), '/');
+        }
 
         if ($shouldFetchFileInformation) {
             try {
-                if (! $storage->exists($file)) {
+                if (! $storage->exists($relativePath)) {
                     return null;
                 }
             } catch (UnableToCheckFileExistence) {
@@ -27,10 +32,10 @@ trait HasUploadFileField
         }
 
         return [
-            'name' => $file,
-            'size' => $shouldFetchFileInformation ? $storage->size($file) : 0,
-            'type' => $shouldFetchFileInformation ? $storage->mimeType($file) : null,
-            'url' => str('/storage'.$file),
+            'name' => $relativePath,
+            'size' => $shouldFetchFileInformation ? $storage->size($relativePath) : 0,
+            'type' => $shouldFetchFileInformation ? $storage->mimeType($relativePath) : null,
+            'url' => '/storage/'.$relativePath,
         ];
     }
 }
