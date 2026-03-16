@@ -187,10 +187,11 @@ class GeneralSetting extends Page implements HasActions, HasForms
             // 'data.photo' => 'required',
         ]);
 
-        $this->about['photo_url'] = $this->resolvePhotoUrl($this->about['photo'] ?? null);
-        unset($this->about['photo']);
+        $data = $this->form->getState()['about'] ?? $this->about;
+        $data['photo_url'] = $this->resolvePhotoUrl($data['photo'] ?? null);
+        unset($data['photo']);
 
-        $aboutService->createOrUpdate($this->about);
+        $aboutService->createOrUpdate($data);
 
         Notification::make()
             ->title(__('Success'))
@@ -233,11 +234,12 @@ class GeneralSetting extends Page implements HasActions, HasForms
         /** @var User $user */
         $user = auth()->user();
         $profile = $user->profile;
+        $data = $this->form->getState()['profile'] ?? $this->profile;
         $photoUrl = feature('edit-profile')
-            ? $this->resolvePhotoUrl($this->profile['photo'] ?? null)
+            ? $this->resolvePhotoUrl($data['photo'] ?? null)
             : $profile->photo;
 
-        $user->update(Arr::except(Arr::only($this->profile, [
+        $user->update(Arr::except(Arr::only($data, [
             'name',
             'email',
             'password',
@@ -245,7 +247,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
             'password_confirmation',
         ]));
 
-        $profile->update(Arr::only($this->profile, [
+        $profile->update(Arr::only($data, [
             'phone',
             'address',
             'locale',
