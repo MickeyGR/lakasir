@@ -71,9 +71,6 @@ class About extends Model
                 ->translateLabel(),
             FileUpload::make('photo')
                 ->disk('public')
-                ->imageResizeMode('cover')
-                ->imageCropAspectRatio('1:1')
-                ->imageEditor()
                 ->image()
                 ->getUploadedFileUsing(function ($file, string|array|null $storedFileNames, $component) {
                     $static = new static;
@@ -82,7 +79,6 @@ class About extends Model
 
                     return $static->getUploadedFileUsing($component, $file, $storedFileNames);
                 })
-                ->imageEditorMode(2)
                 ->translateLabel(),
             Actions::make([
                 Action::make('Save')
