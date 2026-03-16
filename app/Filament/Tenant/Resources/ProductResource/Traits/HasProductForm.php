@@ -31,8 +31,17 @@ trait HasProductForm
             ->image()
             ->translateLabel()
             ->disk('public')
+            ->imageResizeMode('cover')
+            ->imageCropAspectRatio('1:1')
+            ->imageEditor()
             ->storeFileNamesIn('original_name')
             ->directory('product')
+            ->imageEditorAspectRatios([
+                '1:1',
+                '4:3',
+                '16:9',
+            ])
+            ->imageEditorMode(2)
             ->multiple()
             ->maxWidth('full');
     }
