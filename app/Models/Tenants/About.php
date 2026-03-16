@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenants;
 
+use App\Filament\Tenant\Resources\Traits\HasUploadFileField;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -17,7 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class About extends Model
 {
-    use HasFactory;
+    use HasFactory,
+        HasUploadFileField;
 
     protected $guarded = ['id'];
 
@@ -70,10 +72,18 @@ class About extends Model
             FileUpload::make('photo')
                 ->disk('public')
                 ->directory('profile')
+                ->storeFileNamesIn('photo_original_name')
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')
                 ->imageEditor()
                 ->image()
+                ->getUploadedFileUsing(function ($file, string|array|null $storedFileNames, $component) {
+                    $static = new static;
+
+                    $file = str($file)->remove(config('app.url'));
+
+                    return $static->getUploadedFileUsing($component, $file, $storedFileNames);
+                })
                 ->imageEditorMode(2)
                 ->translateLabel(),
             Actions::make([

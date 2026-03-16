@@ -24,6 +24,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -60,6 +61,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         if ($about) {
             $about['preview_image'] = $about['photo'];
             if ($about['photo']) {
+                $about['photo_original_name'] = $this->findUploadedFileOriginalName($about['photo']);
                 $about['photo'] = $this->extractStoragePath($about['photo']);
             }
             foreach (config('setting.key') as $key) {
@@ -90,6 +92,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
             'locale' => $profile->locale,
             'timezone' => $profile->timezone,
             'photo' => $this->extractStoragePath($profile->photo),
+            'photo_original_name' => $this->findUploadedFileOriginalName($profile->photo),
         ];
     }
 
@@ -188,8 +191,9 @@ class GeneralSetting extends Page implements HasActions, HasForms
         ]);
 
         $data = $this->form->getState()['about'] ?? $this->about;
-        $data['photo_url'] = $this->resolvePhotoUrl($data['photo'] ?? null);
+        $data['photo_url'] = $this->resolvePhotoUrl($data['photo'] ?? null, $data['photo_original_name'] ?? null);
         unset($data['photo']);
+        unset($data['photo_original_name']);
 
         $aboutService->createOrUpdate($data);
 
@@ -236,7 +240,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         $profile = $user->profile;
         $data = $this->form->getState()['profile'] ?? $this->profile;
         $photoUrl = feature('edit-profile')
-            ? $this->resolvePhotoUrl($data['photo'] ?? null)
+            ? $this->resolvePhotoUrl($data['photo'] ?? null, $data['photo_original_name'] ?? null)
             : $profile->photo;
 
         $user->update(Arr::except(Arr::only($data, [
@@ -266,7 +270,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         $this->mount();
     }
 
-    private function resolvePhotoUrl(array|string|null $state): ?string
+    private function resolvePhotoUrl(array|string|null $state, string|array|null $originalName = null): ?string
     {
         if (blank($state)) {
             return null;
@@ -291,8 +295,23 @@ class GeneralSetting extends Page implements HasActions, HasForms
 
             $path = ltrim((string) Str::of($file)->after('/storage/'), '/');
 
-            if ($path !== '') {
-                return Storage::disk('public')->url($path);
+            if ($path !== '' && Storage::disk('public')->exists($path)) {
+                $url = Storage::disk('public')->url($path);
+
+                if (! UploadedFile::where('url', $url)->exists()) {
+                    UploadedFile::create([
+                        'name' => Str::of($path)->replace('profile/', ''),
+                        'original_name' => $this->resolveStoredPhotoName($originalName, $path),
+                        'url' => $url,
+                        'mime_type' => Storage::disk('public')->mimeType($path),
+                        'extension' => File::extension($path),
+                        'size' => Storage::disk('public')->size($path),
+                        'disk' => 'public',
+                        'path' => Storage::disk('public')->path($path),
+                    ]);
+                }
+
+                return $url;
             }
         }
 
@@ -306,6 +325,34 @@ class GeneralSetting extends Page implements HasActions, HasForms
         }
 
         return ltrim((string) Str::of(parse_url($url, PHP_URL_PATH) ?? $url)->after('/storage/'), '/');
+    }
+
+    private function resolveStoredPhotoName(string|array|null $originalName, ?string $fallbackPath = null): ?string
+    {
+        if (is_array($originalName)) {
+            $originalName = Arr::first($originalName);
+        }
+
+        if (filled($originalName)) {
+            return $originalName;
+        }
+
+        if (blank($fallbackPath)) {
+            return null;
+        }
+
+        $path = $this->extractStoragePath($fallbackPath) ?? $fallbackPath;
+
+        return basename($path);
+    }
+
+    private function findUploadedFileOriginalName(?string $url): ?string
+    {
+        if (blank($url)) {
+            return null;
+        }
+
+        return UploadedFile::where('url', $url)->value('original_name');
     }
 
     private function syncPhoto(About|Profile $record, ?string $photoUrl): void
