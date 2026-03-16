@@ -45,13 +45,30 @@ class EditProduct extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data = $this->getRecord()->attributesToArray();
-        $uploadedFile = UploadedFile::inUrl($data['hero_images'])
-            ->select(['name', 'original_name'])
-            ->get();
-        $uploadedFile->each(function ($file, $key) use (&$data) {
-            $data['hero_images'][$key] = '/product/'.$file->name;
-            $data['original_name'][$data['hero_images'][$key]] = $file->original_name;
-        });
+        $existingHeroImages = $this->getRecord()->hero_images;
+        $uploadedFilesByUrl = UploadedFile::inUrl($existingHeroImages)
+            ->select(['name', 'original_name', 'url'])
+            ->get()
+            ->keyBy('url');
+
+        $data['hero_images'] = [];
+        $data['original_name'] = [];
+
+        foreach ($existingHeroImages as $heroImageUrl) {
+            $uploadedFile = $uploadedFilesByUrl->get($heroImageUrl);
+            $relativePath = $uploadedFile?->name
+                ? 'product/'.$uploadedFile->name
+                : ltrim((string) str(parse_url($heroImageUrl, PHP_URL_PATH) ?? '')->after('/storage/'), '/');
+
+            if ($relativePath === '') {
+                continue;
+            }
+
+            $statePath = '/'.$relativePath;
+
+            $data['hero_images'][] = $statePath;
+            $data['original_name'][$statePath] = $uploadedFile?->original_name ?? basename($relativePath);
+        }
 
         // Load barcodes
         $data['barcodes'] = $this->getRecord()->barcodes()->get()->map(function ($barcode) {
@@ -79,7 +96,7 @@ class EditProduct extends EditRecord
         /** @var Product $product */
         $product = $this->getRecord();
         $urls = Arr::map($data['hero_images'], function ($heroImage) {
-            return optional(Storage::disk('public'))->url($heroImage);
+            return optional(Storage::disk('public'))->url(ltrim($heroImage, '/'));
         });
 
         if (! $product->hero_images) {

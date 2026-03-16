@@ -71,7 +71,6 @@ class About extends Model
                 ->translateLabel(),
             FileUpload::make('photo')
                 ->disk('public')
-                ->live()
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')
                 ->imageEditor()
