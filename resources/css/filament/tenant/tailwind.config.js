@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme'
+import forms from '@tailwindcss/forms'
 import preset from '../../../../vendor/filament/filament/tailwind.config.preset'
 
 export default {
@@ -8,4 +10,17 @@ export default {
     './resources/views/filament/tenant/**/*.blade.php',
     './vendor/filament/**/*.blade.php',
   ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+      },
+      colors: {
+        lakasir: {
+          primary: '#FF6600',
+        },
+      },
+    },
+  },
+  plugins: [forms],
 }
