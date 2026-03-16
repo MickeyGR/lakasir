@@ -60,7 +60,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         if ($about) {
             $about['preview_image'] = $about['photo'];
             if ($about['photo']) {
-                $about['photo'] = [$about['photo']];
+                $about['photo'] = $this->extractStoragePath($about['photo']);
             }
             foreach (config('setting.key') as $key) {
                 $this->setting[$key] = Setting::get($key);
@@ -89,7 +89,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
             'address' => $profile->address,
             'locale' => $profile->locale,
             'timezone' => $profile->timezone,
-            'photo' => $profile->photo ? [$profile->photo] : null,
+            'photo' => $this->extractStoragePath($profile->photo),
         ];
     }
 
@@ -297,6 +297,15 @@ class GeneralSetting extends Page implements HasActions, HasForms
         }
 
         return null;
+    }
+
+    private function extractStoragePath(?string $url): ?string
+    {
+        if (blank($url)) {
+            return null;
+        }
+
+        return ltrim((string) Str::of(parse_url($url, PHP_URL_PATH) ?? $url)->after('/storage/'), '/');
     }
 
     private function syncPhoto(About|Profile $record, ?string $photoUrl): void
