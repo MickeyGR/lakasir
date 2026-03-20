@@ -8,6 +8,7 @@ use App\Models\Tenants\Profile;
 use App\Models\Tenants\Setting;
 use App\Models\Tenants\UploadedFile;
 use App\Models\Tenants\User;
+use App\Support\Storage\StoredFileUrl;
 use App\Services\Tenants\AboutService;
 use App\Traits\HasTranslatableResource;
 use Filament\Actions\Contracts\HasActions;
@@ -319,11 +320,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
 
     private function extractStoragePath(?string $url): ?string
     {
-        if (blank($url)) {
-            return null;
-        }
-
-        return ltrim((string) Str::of(parse_url($url, PHP_URL_PATH) ?? $url)->after('/storage/'), '/');
+        return StoredFileUrl::extractPublicPath($url);
     }
 
     private function formatExistingFileUploadState(?string $url): array
@@ -360,7 +357,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
 
     private function findUploadedFileOriginalName(?string $url): ?string
     {
-        if (blank($url)) {
+        if (blank($url) || StoredFileUrl::isTemporaryUploadPath($url)) {
             return null;
         }
 

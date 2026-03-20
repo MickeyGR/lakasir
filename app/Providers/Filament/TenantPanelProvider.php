@@ -40,6 +40,7 @@ use App\Filament\Tenant\Resources\UserResource;
 use App\Filament\Tenant\Resources\VoucherResource;
 use App\Http\Middleware\LocalizationMiddleware;
 use App\Models\Tenants\About;
+use App\Support\Storage\StoredFileUrl;
 use App\Tenant;
 use Filament\Forms\Components\DatePicker;
 use Filament\Http\Middleware\Authenticate;
@@ -141,7 +142,7 @@ class TenantPanelProvider extends PanelProvider
                 Js::make('indexeddb', resource_path('js/indexeddb.js')),
                 Js::make('html5-qrcode', 'https://unpkg.com/html5-qrcode')
             ])
-            ->favicon(url('favicon.ico'))
+            ->favicon('/favicon.ico')
             ->spa(config('app.spa_mode'))
             ->authGuard('web')
             ->path('/member')
@@ -270,7 +271,7 @@ class TenantPanelProvider extends PanelProvider
     {
         if (Schema::hasTable('abouts') && $about = About::first()) {
             $panel->brandName($about->shop_name ?? 'Your Brand')
-                ->brandLogo($about->photo ?? null);
+                ->brandLogo($this->resolveBrandLogo($about->photo ?? null));
         }
     }
 
@@ -279,7 +280,12 @@ class TenantPanelProvider extends PanelProvider
         $about = About::first();
 
         $panel->brandName($about->shop_name ?? 'Your Brand')
-            ->brandLogo($about->photo ?? null);
+            ->brandLogo($this->resolveBrandLogo($about->photo ?? null));
+    }
+
+    private function resolveBrandLogo(?string $url): ?string
+    {
+        return StoredFileUrl::toCurrentPublicUrl($url);
     }
 
     private function generateNavigationItem(string $resource, ?string $feature = null, ?array $activeWhen = []): NavigationItem
