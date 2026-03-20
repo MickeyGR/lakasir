@@ -385,7 +385,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
         /** @var UploadedFile|null $tmpFile */
         $tmpFile = UploadedFile::where('url', $photoUrl)->first();
 
-        if ($tmpFile) {
+        if ($tmpFile?->disk === 'tmp') {
             $photoUrl = $tmpFile->moveToPuplic('profile', $record->photo ? Str::of($record->photo)->after('profile/') : null);
         } else {
             $this->deletePhoto($record->photo);

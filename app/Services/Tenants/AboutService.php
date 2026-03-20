@@ -55,7 +55,7 @@ class AboutService
             /** @var \App\Models\Tenants\UploadedFile $tmpFile */
             $tmpFile = UploadedFile::where('url', $data['photo_url'])->first();
             $url = $data['photo_url'];
-            if ($tmpFile) {
+            if ($tmpFile?->disk === 'tmp') {
                 $url = $tmpFile->moveToPuplic('profile', $about->photo ? Str::of($about->photo)->after('profile/') : null);
             } else {
                 $this->deletePhoto($about->photo);
