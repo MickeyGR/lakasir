@@ -46,7 +46,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
 
     public $about = [
         'shop_location' => '',
-        'photo' => '',
+        'photo' => [],
     ];
 
     public $setting = [];
@@ -60,10 +60,9 @@ class GeneralSetting extends Page implements HasActions, HasForms
         $about = About::first()?->toArray() ?? $this->about;
         if ($about) {
             $about['preview_image'] = $about['photo'];
-            if ($about['photo']) {
-                $about['photo_original_name'] = $this->findUploadedFileOriginalName($about['photo']);
-                $about['photo'] = $this->extractStoragePath($about['photo']);
-            }
+            $about['photo_original_name'] = $this->findUploadedFileOriginalName($about['photo'] ?? null);
+            $about['photo'] = $this->formatExistingFileUploadState($about['photo'] ?? null);
+
             foreach (config('setting.key') as $key) {
                 $this->setting[$key] = Setting::get($key);
             }
@@ -91,7 +90,7 @@ class GeneralSetting extends Page implements HasActions, HasForms
             'address' => $profile->address,
             'locale' => $profile->locale,
             'timezone' => $profile->timezone,
-            'photo' => $this->extractStoragePath($profile->photo),
+            'photo' => $this->formatExistingFileUploadState($profile->photo),
             'photo_original_name' => $this->findUploadedFileOriginalName($profile->photo),
         ];
     }
@@ -325,6 +324,19 @@ class GeneralSetting extends Page implements HasActions, HasForms
         }
 
         return ltrim((string) Str::of(parse_url($url, PHP_URL_PATH) ?? $url)->after('/storage/'), '/');
+    }
+
+    private function formatExistingFileUploadState(?string $url): array
+    {
+        $path = $this->extractStoragePath($url);
+
+        if (blank($path)) {
+            return [];
+        }
+
+        return [
+            (string) Str::uuid() => $path,
+        ];
     }
 
     private function resolveStoredPhotoName(string|array|null $originalName, ?string $fallbackPath = null): ?string
