@@ -6,6 +6,13 @@ use Livewire\Volt\Volt;
 
 Volt::route('/', 'pages/welcome');
 
+Route::get('/up', function () {
+    return response()->json([
+        'status' => 'ok',
+        'scope' => 'central',
+    ]);
+});
+
 Route::view('/offline', 'offline');
 
 Route::get('/serviceworker.js', function () {

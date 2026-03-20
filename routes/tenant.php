@@ -43,6 +43,13 @@ if (! config('scalar.standalone_mode')) {
 
 Route::middleware($middleware)
     ->group(function () {
+        Route::get('/up', function () {
+            return response()->json([
+                'status' => 'ok',
+                'scope' => 'tenant',
+                'tenant' => tenant('id'),
+            ]);
+        });
         Route::get('/', function () {
             return redirect()->to('/member');
         });
