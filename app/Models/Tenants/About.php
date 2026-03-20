@@ -2,8 +2,10 @@
 
 namespace App\Models\Tenants;
 
+use App\Support\Filament\FileUploadPreviewResolver;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -71,6 +73,7 @@ class About extends Model
                 ->disk('public')
                 ->directory('profile')
                 ->storeFileNamesIn('photo_original_name')
+                ->getUploadedFileUsing(fn (BaseFileUpload $component, string $file, string|array|null $storedFileNames): ?array => FileUploadPreviewResolver::resolve($component, $file, $storedFileNames))
                 ->imageResizeMode('cover')
                 ->imageCropAspectRatio('1:1')
                 ->imageEditor()
