@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenants;
 
-use App\Filament\Tenant\Resources\Traits\HasUploadFileField;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -21,8 +20,7 @@ use Tapp\FilamentTimezoneField\Forms\Components\TimezoneSelect;
  */
 class Profile extends Model
 {
-    use HasFactory,
-        HasUploadFileField;
+    use HasFactory;
 
     protected $fillable = [
         'phone',
@@ -77,13 +75,6 @@ class Profile extends Model
                 ->imageCropAspectRatio('1:1')
                 ->imageEditor()
                 ->image()
-                ->getUploadedFileUsing(function ($file, string|array|null $storedFileNames, $component) {
-                    $static = new static;
-
-                    $file = str($file)->remove(config('app.url'));
-
-                    return $static->getUploadedFileUsing($component, $file, $storedFileNames);
-                })
                 ->imageEditorMode(2)
                 ->translateLabel(),
             TextInput::make('password')
