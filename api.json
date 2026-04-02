@@ -1579,6 +1579,30 @@
                 }
             }
         },
+        "/storefront/meta/catalog.csv": {
+            "get": {
+                "operationId": "storefront.meta.catalog",
+                "summary": "Stream the tenant storefront catalog in Meta-compatible CSV format",
+                "tags": [
+                    "MetaCatalog"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/notification": {
             "get": {
                 "operationId": "notification.index",
@@ -4311,7 +4335,8 @@
                                             "secure_initial_price_enabled",
                                             "secure_initial_price_using_pin",
                                             "default_tax",
-                                            "minimum_stock_nofication"
+                                            "minimum_stock_nofication",
+                                            "storefront_public_base_url"
                                         ]
                                     },
                                     "value": {
@@ -5102,72 +5127,6 @@
                 ],
                 "title": "ProductCollection"
             },
-            "ProductRequest": {
-                "type": "object",
-                "properties": {
-                    "sku": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "barcode": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "minLength": 3
-                    },
-                    "name": {
-                        "type": "string",
-                        "minLength": 3
-                    },
-                    "category": {
-                        "type": "string"
-                    },
-                    "stock": {
-                        "type": "number"
-                    },
-                    "initial_price": {
-                        "type": "number"
-                    },
-                    "selling_price": {
-                        "type": "number"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "product",
-                            "service"
-                        ]
-                    },
-                    "hero_images_url": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "is_non_stock": {
-                        "type": "boolean"
-                    },
-                    "expired": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    }
-                },
-                "required": [
-                    "name",
-                    "category",
-                    "initial_price",
-                    "selling_price",
-                    "type",
-                    "is_non_stock"
-                ],
-                "title": "ProductRequest"
-            },
             "RegisterRequest": {
                 "type": "object",
                 "properties": {
@@ -5308,6 +5267,12 @@
                                 "product_id": {
                                     "type": "integer"
                                 },
+                                "price_unit_id": {
+                                    "type": [
+                                        "integer",
+                                        "null"
+                                    ]
+                                },
                                 "price": {
                                     "type": "number"
                                 },
@@ -5334,66 +5299,13 @@
                 "title": "TransactionSellingStoreRequest"
             },
             "User": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "is_owner": {
-                        "type": "integer"
-                    },
-                    "name": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "email_verified_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "created_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "deleted_at": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "format": "date-time"
-                    },
-                    "dark_mode_enabled": {
-                        "type": "integer"
-                    }
+                "type": "array",
+                "items": {
+                    "type": "string"
                 },
-                "required": [
-                    "id",
-                    "is_owner",
-                    "name",
-                    "email",
-                    "email_verified_at",
-                    "created_at",
-                    "updated_at",
-                    "deleted_at",
-                    "dark_mode_enabled"
-                ],
+                "minItems": 0,
+                "maxItems": 0,
+                "additionalItems": false,
                 "title": "User"
             }
         },

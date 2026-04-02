@@ -9,19 +9,34 @@ use App\Models\Tenants\User;
 use App\Notifications\DomainCreated;
 use App\Tenant;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
+use Stancl\Tenancy\Exceptions\DomainOccupiedByOtherTenantException;
+use Stancl\Tenancy\Exceptions\TenantDatabaseAlreadyExistsException;
+use Stancl\Tenancy\Exceptions\TenantDatabaseUserAlreadyExistsException;
 
 class RegisterTenant
 {
     public function create(array $data): Tenant
     {
         $name = $data['name'] ?? null;
-        /** @var Tenant */
-        $tenant = Tenant::create([
-            'id' => $name,
-            'tenancy_db_name' => 'lakasir_'.$name,
-            'tenancy_email' => $data['email'],
-        ]);
+        $domain = $data['domain'] ?? null;
+
+        $this->guardAgainstExistingTenantResources($name, $domain);
+
+        try {
+            /** @var Tenant */
+            $tenant = Tenant::create([
+                'id' => $name,
+                'tenancy_db_name' => 'lakasir_'.$name,
+                'tenancy_email' => $data['email'],
+            ]);
+        } catch (TenantDatabaseAlreadyExistsException|TenantDatabaseUserAlreadyExistsException|DomainOccupiedByOtherTenantException $e) {
+            throw ValidationException::withMessages([
+                'domain' => [$this->tenantConflictMessage($name)],
+            ]);
+        }
 
         $tenant->domains()->create([
             'domain' => $data['domain'],
@@ -63,5 +78,45 @@ class RegisterTenant
         });
 
         return $tenant;
+    }
+
+    private function guardAgainstExistingTenantResources(?string $name, ?string $domain): void
+    {
+        if (blank($name) || blank($domain)) {
+            return;
+        }
+
+        if (Tenant::query()->whereKey($name)->exists()) {
+            throw ValidationException::withMessages([
+                'domain' => ['This domain is already registered.'],
+            ]);
+        }
+
+        if (DB::connection('mysql')->table('domains')->where('domain', $domain)->exists()) {
+            throw ValidationException::withMessages([
+                'domain' => ['This domain is already registered.'],
+            ]);
+        }
+
+        if ($this->tenantDatabaseExists('lakasir_'.$name)) {
+            throw ValidationException::withMessages([
+                'domain' => [$this->tenantConflictMessage($name)],
+            ]);
+        }
+    }
+
+    private function tenantDatabaseExists(string $databaseName): bool
+    {
+        return (bool) DB::connection('mysql')->select(
+            'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?',
+            [$databaseName]
+        );
+    }
+
+    private function tenantConflictMessage(?string $name): string
+    {
+        $identifier = $name ?: 'this tenant';
+
+        return "A tenant database for '{$identifier}' already exists. If this is your store, reconnect it from the central tenant registry instead of registering it again.";
     }
 }

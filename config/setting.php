@@ -9,5 +9,6 @@ return [
         'secure_initial_price_using_pin',
         'default_tax',
         'minimum_stock_nofication',
+        'storefront_public_base_url',
     ],
 ];

@@ -10,7 +10,6 @@ use App\Http\Resources\ProductCollection;
 use App\Models\Tenants\Product;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -67,25 +66,19 @@ class ProductController extends Controller
      */
     public function index(ProductIndexRequest $request)
     {
-        // Reuse the same logic but maybe apply stricter scopes for public view if needed
-        // For now, mirroring the main ProductController but strictly readonly
-        
-        $products = QueryBuilder::for(Product::class)
+        $products = QueryBuilder::for(Product::query()->storefrontVisible())
             ->allowedFilters([
                 'name',
                 'category_id',
                 AllowedFilter::exact('sellingPrice', 'selling_price'),
-                // 'initialPrice', // Maybe hide initial price filter?
                 'type',
                 'category.name',
                 'unit',
-                // 'show', // Force show=1
                 ...ComparisonFilter::setFilters('stock', ['gt', 'ge', 'lt', 'le', 'eq', 'ne']),
                 AllowedFilter::custom('global', new SearchFields, 'name,sku,barcodes.code'),
             ])
             ->allowedIncludes(['category', 'images'])
-            ->allowedSorts(['name', 'selling_price', 'created_at']) // Removed initial_price sort
-            ->where('show', 1) // Enforce showing only visible products
+            ->allowedSorts(['name', 'selling_price', 'created_at'])
             ->orderByDesc('created_at')
             ->simplePaginate($request->per_page);
 
@@ -129,19 +122,20 @@ class ProductController extends Controller
      */
     public function show(int $id)
     {
-        $product = Product::find($id);
-        
-        if (!$product || !$product->show) {
-             return $this->error('Product not found', 404);
+        $product = Product::query()
+            ->storefrontVisible()
+            ->with(['category', 'stocks'])
+            ->find($id);
+
+        if (! $product) {
+            return $this->buildResponse()
+                ->setCode(404)
+                ->setMessage('Product not found')
+                ->present();
         }
 
-        $product->load(['category', 'stocks']);
-        
-        // Use the same resource for now, but potentially map to a simpler one later
-        $productResource = new ProductCollection($product);
-
         return $this->buildResponse()
-            ->setData($productResource)
+            ->setData(new ProductCollection($product))
             ->present();
     }
 }

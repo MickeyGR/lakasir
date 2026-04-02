@@ -126,6 +126,12 @@ class GeneralSetting extends Page implements HasActions, HasForms
                                     50 => 50,
                                 ])
                                 ->translateLabel(),
+                            TextInput::make('storefront_public_base_url')
+                                ->label('Storefront public base URL')
+                                ->placeholder('https://midominio.com')
+                                ->helperText('Absolute storefront URL used to build public product links for Meta catalog feeds.')
+                                ->url()
+                                ->translateLabel(),
                             TextInput::make('default_tax')
                                 ->numeric()
                                 ->suffix('%')
@@ -168,6 +174,10 @@ class GeneralSetting extends Page implements HasActions, HasForms
 
     public function saveApp(): void
     {
+        $this->validate([
+            'setting.storefront_public_base_url' => ['nullable', 'url'],
+        ]);
+
         foreach ($this->setting as $key => $value) {
             Setting::set($key, $value);
         }

@@ -240,6 +240,7 @@ Route::middleware($apiMiddleware)
             // Public Product Catalog
             Route::get('/products', [\App\Http\Controllers\Api\Tenants\Storefront\ProductController::class, 'index']);
             Route::get('/products/{product}', [\App\Http\Controllers\Api\Tenants\Storefront\ProductController::class, 'show']);
+            Route::get('/meta/catalog.csv', [\App\Http\Controllers\Api\Tenants\Storefront\MetaCatalogController::class, 'index']);
 
             // Customer Authentication
             Route::prefix('auth')->group(function () {

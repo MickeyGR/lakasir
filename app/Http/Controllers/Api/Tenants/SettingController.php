@@ -48,6 +48,15 @@ class SettingController extends Controller
                             return;
                         }
                     }
+                    if ($value === 'storefront_public_base_url' && filled($request->value)) {
+                        if (! filter_var($request->value, FILTER_VALIDATE_URL)
+                            || blank(parse_url($request->value, PHP_URL_SCHEME))
+                            || blank(parse_url($request->value, PHP_URL_HOST))) {
+                            $fail('The '.$attribute.' should be a valid absolute URL.');
+
+                            return;
+                        }
+                    }
                 },
             ],
             'value' => ['required'],

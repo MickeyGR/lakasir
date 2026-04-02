@@ -81,7 +81,7 @@ Lakasir uses **multi-tenancy** architecture, allowing multiple stores (tenants) 
 | Sales & POS | `routes/tenant.php` (`/api/transaction/selling*`, `/api/transaction/cash-drawer*`, `/member/sellings/{selling}/print`) | `app/Http/Controllers/Api/Tenants/Transaction/SellingController.php`, `app/Http/Controllers/Api/Tenants/Transaction/CashDrawerController.php`, `app/Http/Controllers/Api/Tenants/Transaction/DashboardController.php`, `app/Http/Requests/Tenants/Sellings/TransactionSellingStoreRequest.php`, `app/Filament/Tenant/Pages/POS.php`, `app/Filament/Tenant/Pages/Cashier.php`, `app/Filament/Tenant/Resources/SellingResource.php`, `app/Services/Tenants/SellingService.php`, `app/Models/Tenants/Selling.php`, `app/Models/Tenants/SellingDetail.php`, `app/Models/Tenants/CashDrawer.php` |
 | Reports | `routes/tenant.php` (`/member/*-report/generate`, `/api/report/*`) | `app/Http/Controllers/PurchasingReportController.php`, `app/Http/Controllers/SellingReportController.php`, `app/Http/Controllers/ProductReportController.php`, `app/Http/Controllers/CashierReportController.php`, `app/Http/Controllers/Api/Tenants/Reports/PurchasingReportController.php`, `app/Http/Controllers/Api/Tenants/Reports/SellingReportController.php`, `app/Filament/Tenant/Pages/Report.php`, `app/Filament/Tenant/Pages/PurchasingReport.php`, `app/Filament/Tenant/Pages/SellingReport.php`, `app/Filament/Tenant/Pages/ProductReport.php`, `app/Filament/Tenant/Pages/CashierReport.php`, `app/Services/Tenants/PurchasingReportService.php`, `app/Services/Tenants/SellingReportService.php`, `app/Services/Tenants/ProductReportService.php`, `app/Services/Tenants/CashierReportService.php` |
 | Settings & profile | `routes/tenant.php` (`/api/about*`, `/api/setting*`, `/api/printer*`, `/api/notification*`, `/api/auth/me`) | `app/Http/Controllers/Api/Tenants/AboutController.php`, `app/Http/Controllers/Api/Tenants/SettingController.php`, `app/Http/Controllers/Api/Tenants/Settings/SecureInitialPriceController.php`, `app/Http/Controllers/Api/Tenants/PrinterController.php`, `app/Http/Controllers/Api/Tenants/NotificationController.php`, `app/Http/Controllers/Api/Tenants/ProfileController.php`, `app/Filament/Tenant/Pages/GeneralSetting.php`, `app/Filament/Tenant/Pages/Printer.php`, `app/Services/Tenants/AboutService.php`, `app/Models/Tenants/About.php`, `app/Models/Tenants/Setting.php`, `app/Models/Tenants/SecureInitialPrice.php`, `app/Models/Tenants/Printer.php` |
-| Storefront API | `routes/tenant.php` (`/api/storefront/*`) | `app/Http/Controllers/Api/Tenants/Storefront/AboutController.php`, `app/Http/Controllers/Api/Tenants/Storefront/CategoryController.php`, `app/Http/Controllers/Api/Tenants/Storefront/ProductController.php`, `app/Http/Controllers/Api/Tenants/Storefront/AuthController.php`, `app/Models/Tenants/Member.php` |
+| Storefront API | `routes/tenant.php` (`/api/storefront/*`) | `app/Http/Controllers/Api/Tenants/Storefront/AboutController.php`, `app/Http/Controllers/Api/Tenants/Storefront/CategoryController.php`, `app/Http/Controllers/Api/Tenants/Storefront/ProductController.php`, `app/Http/Controllers/Api/Tenants/Storefront/MetaCatalogController.php`, `app/Http/Controllers/Api/Tenants/Storefront/AuthController.php`, `app/Models/Tenants/Member.php` |
 
 ## Installation
 
@@ -356,6 +356,9 @@ The documentation includes:
 - ✅ **Parameter validation rules**
 - ✅ **Try It Out** feature for testing endpoints
 
+Additional repo docs:
+- Storefront Meta/Facebook catalog feed: [`readme/meta-facebook-catalog.md`](./readme/meta-facebook-catalog.md)
+
 ### API Response Format
 
 All API responses follow this structure:
@@ -426,12 +429,22 @@ The Storefront API allows building custom e-commerce frontends:
 **Public Endpoints** (No Authentication):
 - `GET /api/storefront/products` - List visible products
 - `GET /api/storefront/products/{id}` - Get product details
+- `GET /api/storefront/meta/catalog.csv` - Meta/Facebook catalog feed for scheduled fetch
 
 **Customer Authentication**:
 - `POST /api/storefront/auth/register` - Register new customer
 - `POST /api/storefront/auth/login` - Customer login
 - `GET /api/storefront/auth/me` - Get customer profile (requires token)
 - `POST /api/storefront/auth/logout` - Customer logout
+
+**Meta/Facebook Catalog Feed**:
+- Format: UTF-8 CSV, streamed, no pagination
+- Visibility: uses the same storefront publication rule as public products (`show = 1` and not soft-deleted)
+- Stock handling: products with `stock <= 0` stay in the feed as `out of stock`
+- Required tenant setting: `storefront_public_base_url` with an absolute public storefront URL such as `https://mystore.com`
+- Authentication: none. This endpoint is public.
+- Product links: `{storefront_public_base_url}/product/{id}`
+- Detailed mapping and examples: [`readme/meta-facebook-catalog.md`](./readme/meta-facebook-catalog.md)
 
 **Example: List Products**
 ```bash
@@ -443,6 +456,18 @@ curl "https://mystore.lakasir.com/api/storefront/products?per_page=20&sort=-sell
 curl -X POST "https://mystore.lakasir.com/api/storefront/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"email":"customer@example.com","password":"password123"}'
+```
+
+**Example: Meta Catalog Feed**
+```bash
+curl "https://mystore.lakasir.com/api/storefront/meta/catalog.csv"
+```
+
+**Local note**
+```bash
+# If the endpoint returns
+# {"success":false,"message":"Storefront public base URL is not configured for this tenant."}
+# configure the tenant setting `storefront_public_base_url` first.
 ```
 
 For complete API documentation, visit the Scalar docs at `https://{your-tenant-domain}/docs`.

@@ -13,9 +13,11 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Throwable;
 
 #[Layout('livewire.components.layouts.guest')]
 class RegisterTenantForm extends Component implements HasForms
@@ -108,7 +110,24 @@ class RegisterTenantForm extends Component implements HasForms
             'domain' => strtolower($data['domain'].'.'.config('tenancy.central_domains')[0]),
         ]);
 
-        $tenant = $registerTenant->create($data);
+        try {
+            $tenant = $registerTenant->create($data);
+        } catch (ValidationException $e) {
+            $messages = [];
+
+            foreach ($e->errors() as $field => $fieldMessages) {
+                $messages[str_starts_with($field, 'data.') ? $field : 'data.'.$field] = $fieldMessages;
+            }
+
+            throw ValidationException::withMessages($messages);
+        } catch (Throwable $e) {
+            report($e);
+
+            throw ValidationException::withMessages([
+                'data.domain' => ['Tenant could not be created right now. Please try another domain or contact support if this store already exists.'],
+            ]);
+        }
+
         $securedDomain = 'https://'.$tenant->domains->first()->domain;
 
         redirect()->to($securedDomain, secure: true);

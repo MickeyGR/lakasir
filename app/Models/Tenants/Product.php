@@ -38,6 +38,11 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('id');
+    }
+
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class)
@@ -209,6 +214,11 @@ class Product extends Model
     public function scopeInActivate(Builder $builder): Builder
     {
         return $builder->where('show', false);
+    }
+
+    public function scopeStorefrontVisible(Builder $builder): Builder
+    {
+        return $builder->where('show', true);
     }
 
     public function priceUnits(): HasMany

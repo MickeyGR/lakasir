@@ -9,6 +9,7 @@ use App\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class RegisterRequest extends FormRequest
 {
@@ -55,6 +56,12 @@ class RegisterRequest extends FormRequest
             return $tenant;
         } catch (ValidationException $e) {
             throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
+            throw ValidationException::withMessages([
+                'domain' => ['Tenant could not be created right now. Please choose another domain or contact support if this store already exists.'],
+            ]);
         }
     }
 }
