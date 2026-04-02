@@ -218,7 +218,9 @@ class Product extends Model
 
     public function scopeStorefrontVisible(Builder $builder): Builder
     {
-        return $builder->where('show', true);
+        return $builder
+            ->where('show', true)
+            ->where('show_in_storefront', true);
     }
 
     public function priceUnits(): HasMany

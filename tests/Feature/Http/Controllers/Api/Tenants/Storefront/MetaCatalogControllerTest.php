@@ -87,6 +87,7 @@ function createStorefrontProduct(array $attributes = []): Product
         'unit' => 'pcs',
         'type' => 'product',
         'show' => true,
+        'show_in_storefront' => true,
         'hero_images' => [fakePublicImage('product/laptop-main.jpg')],
     ], $attributes));
 }
@@ -186,8 +187,28 @@ test('meta catalog feed excludes products hidden from storefront', function () {
 
     createStorefrontProduct([
         'name' => 'Hidden Product',
-        'show' => false,
+        'show_in_storefront' => false,
         'hero_images' => [fakePublicImage('product/hidden-main.jpg')],
+    ]);
+
+    $response = get('/api/storefront/meta/catalog.csv');
+    $rows = metaCatalogRows($response->streamedContent());
+
+    expect($rows)->toHaveCount(1);
+    expect($rows[0]['title'])->toBe('Visible Product');
+});
+
+test('meta catalog feed excludes products inactive in the system', function () {
+    createStorefrontProduct([
+        'name' => 'Visible Product',
+        'hero_images' => [fakePublicImage('product/visible-main.jpg')],
+    ]);
+
+    createStorefrontProduct([
+        'name' => 'Inactive Product',
+        'show' => false,
+        'show_in_storefront' => true,
+        'hero_images' => [fakePublicImage('product/inactive-main.jpg')],
     ]);
 
     $response = get('/api/storefront/meta/catalog.csv');

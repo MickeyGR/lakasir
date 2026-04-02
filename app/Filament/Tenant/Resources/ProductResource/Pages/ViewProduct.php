@@ -37,6 +37,9 @@ class ViewProduct extends ViewRecord
                     ->icon('heroicon-s-printer')
                     ->visible(can('can print label') && feature(PrintProductLabel::class))
                     ->action(fn ($data) => $this->printLabel($data)),
+                Action::make($this->record->show_in_storefront ? __('Hide from storefront') : __('Show in storefront'))
+                    ->icon($this->record->show_in_storefront ? 'heroicon-s-eye-slash' : 'heroicon-s-eye')
+                    ->action('toggleStorefrontVisibility'),
                 Action::make($this->record->show ? __('Inactivate') : __('Activate'))
                     ->icon($this->record->show ? 'heroicon-s-x-circle' : 'heroicon-s-rocket-launch')
                     ->action('toggleShow'),
@@ -64,6 +67,19 @@ class ViewProduct extends ViewRecord
 
         Notification::make()
             ->title(__($this->record->show ? 'Status active' : 'Status inactive'))
+            ->success()
+            ->send();
+
+        $this->refreshPage();
+    }
+
+    public function toggleStorefrontVisibility(): void
+    {
+        $this->record->show_in_storefront = ! $this->record->show_in_storefront;
+        $this->record->save();
+
+        Notification::make()
+            ->title(__($this->record->show_in_storefront ? 'Visible in storefront' : 'Hidden from storefront'))
             ->success()
             ->send();
 

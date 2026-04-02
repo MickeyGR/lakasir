@@ -33,6 +33,8 @@ class ProductFactory extends Factory
             'selling_price' => rand(60000, 70000),
             'unit' => 'PCS',
             'type' => 'product',
+            'show' => true,
+            'show_in_storefront' => true,
         ];
     }
 }

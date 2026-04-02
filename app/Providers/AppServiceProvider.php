@@ -186,6 +186,7 @@ class AppServiceProvider extends ServiceProvider
                                             'sku' => 'LTP-002',
                                             'barcode' => '9876543210000',
                                             'show' => 1,
+                                            'show_in_storefront' => 1,
                                         ],
                                         [
                                             'id' => 1,
@@ -207,6 +208,7 @@ class AppServiceProvider extends ServiceProvider
                                             'sku' => 'LTP-001',
                                             'barcode' => '1234567890123',
                                             'show' => 1,
+                                            'show_in_storefront' => 1,
                                         ],
                                     ],
                                     'links' => [
@@ -271,6 +273,7 @@ class AppServiceProvider extends ServiceProvider
                             ->addProperty('category', (new \Dedoc\Scramble\Support\Generator\Types\IntegerType)->example(1))
                             ->addProperty('initial_price', (new \Dedoc\Scramble\Support\Generator\Types\NumberType)->example(9000000))
                             ->addProperty('is_non_stock', (new \Dedoc\Scramble\Support\Generator\Types\BooleanType)->example(false))
+                            ->addProperty('show_in_storefront', (new \Dedoc\Scramble\Support\Generator\Types\BooleanType)->example(true))
                             ->addProperty('name', (new \Dedoc\Scramble\Support\Generator\Types\StringType)->example('Laptop Pro 15'))
                             ->addProperty('selling_price', (new \Dedoc\Scramble\Support\Generator\Types\NumberType)->example(12000000))
                             ->addProperty('type', (new \Dedoc\Scramble\Support\Generator\Types\StringType)->enum(['product', 'service'])->example('product'))
@@ -321,6 +324,7 @@ class AppServiceProvider extends ServiceProvider
                                     'sku' => 'LTP-001',
                                     'barcode' => '1234567890123',
                                     'show' => 1,
+                                    'show_in_storefront' => 1,
                                     'stocks' => [
                                         [
                                             'id' => 1,
@@ -376,6 +380,7 @@ class AppServiceProvider extends ServiceProvider
                                     'sku' => 'LTP-001',
                                     'barcode' => '1234567890123',
                                     'show' => 1,
+                                    'show_in_storefront' => 1,
                                 ],
                                 'message' => 'success updating items',
                             ])
@@ -392,6 +397,7 @@ class AppServiceProvider extends ServiceProvider
                             ->addProperty('category', (new \Dedoc\Scramble\Support\Generator\Types\IntegerType)->example(1))
                             ->addProperty('initial_price', (new \Dedoc\Scramble\Support\Generator\Types\NumberType)->example(9000000))
                             ->addProperty('is_non_stock', (new \Dedoc\Scramble\Support\Generator\Types\BooleanType)->example(false))
+                            ->addProperty('show_in_storefront', (new \Dedoc\Scramble\Support\Generator\Types\BooleanType)->example(true))
                             ->addProperty('name', (new \Dedoc\Scramble\Support\Generator\Types\StringType)->example('Laptop Pro 15'))
                             ->addProperty('selling_price', (new \Dedoc\Scramble\Support\Generator\Types\NumberType)->example(12500000))
                             ->addProperty('type', (new \Dedoc\Scramble\Support\Generator\Types\StringType)->enum(['product', 'service'])->example('product'))
@@ -423,6 +429,142 @@ class AppServiceProvider extends ServiceProvider
                             Response::make(200)
                                 ->setDescription('Product deleted')
                                 ->setContent('application/json', $successSchema),
+                        ];
+                    }
+                }
+
+                foreach ($openApi->paths as $path) {
+                    if ($path->path !== 'storefront/products') {
+                        continue;
+                    }
+
+                    if ($operation = $path->operations['get'] ?? null) {
+                        $schema = Schema::fromType(
+                            (new ObjectType)->example([
+                                'success' => true,
+                                'data' => [
+                                    'data' => [
+                                        [
+                                            'id' => 101,
+                                            'name' => 'Laptop HP Pavilion 15',
+                                            'category' => [
+                                                'id' => 5,
+                                                'name' => 'Electronics',
+                                            ],
+                                            'category_id' => 5,
+                                            'initial_price' => 800,
+                                            'selling_price' => 999.99,
+                                            'type' => 'product',
+                                            'unit' => 'pcs',
+                                            'stock' => 25,
+                                            'is_non_stock' => false,
+                                            'hero_images' => 'https://tenantdemo.localdomain.test:8000/storage/product/laptop-main.jpg',
+                                            'sku' => 'LAP-HP-001',
+                                            'barcode' => '7501234567890',
+                                            'show' => 1,
+                                            'show_in_storefront' => 1,
+                                        ],
+                                    ],
+                                    'links' => [
+                                        'first' => 'https://tenantdemo.localdomain.test/api/storefront/products?page=1',
+                                        'prev' => null,
+                                        'next' => 'https://tenantdemo.localdomain.test/api/storefront/products?page=2',
+                                    ],
+                                    'meta' => [
+                                        'current_page' => 1,
+                                        'from' => 1,
+                                        'path' => 'https://tenantdemo.localdomain.test/api/storefront/products',
+                                        'per_page' => 15,
+                                        'to' => 15,
+                                    ],
+                                ],
+                            ])
+                        );
+
+                        $operation->responses = [
+                            Response::make(200)
+                                ->setDescription('List visible storefront products')
+                                ->setContent('application/json', $schema),
+                            Response::make(422)
+                                ->setDescription('Validation error')
+                                ->setContent('application/json', Schema::fromType(
+                                    (new ObjectType)->example([
+                                        'message' => 'The given data was invalid.',
+                                        'errors' => [
+                                            'per_page' => ['The per page field must not be greater than 100.'],
+                                        ],
+                                    ])
+                                )),
+                        ];
+                    }
+                }
+
+                foreach ($openApi->paths as $path) {
+                    if ($path->path !== 'storefront/products/{id}') {
+                        continue;
+                    }
+
+                    if ($operation = $path->operations['get'] ?? null) {
+                        $schema = Schema::fromType(
+                            (new ObjectType)->example([
+                                'success' => true,
+                                'data' => [
+                                    'id' => 101,
+                                    'name' => 'Laptop HP Pavilion 15',
+                                    'category' => [
+                                        'id' => 5,
+                                        'name' => 'Electronics',
+                                    ],
+                                    'category_id' => 5,
+                                    'initial_price' => 800,
+                                    'selling_price' => 999.99,
+                                    'type' => 'product',
+                                    'unit' => 'pcs',
+                                    'stock' => 25,
+                                    'is_non_stock' => false,
+                                    'hero_images' => 'https://tenantdemo.localdomain.test:8000/storage/product/laptop-main.jpg',
+                                    'sku' => 'LAP-HP-001',
+                                    'barcode' => '7501234567890',
+                                    'show' => 1,
+                                    'show_in_storefront' => 1,
+                                    'stocks' => [
+                                        [
+                                            'id' => 1,
+                                            'product_id' => 101,
+                                            'stock' => 10,
+                                            'init_stock' => 10,
+                                            'initial_price' => 800,
+                                            'selling_price' => 999.99,
+                                            'type' => 'in',
+                                            'date' => '2024-01-15',
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'product_id' => 101,
+                                            'stock' => 15,
+                                            'init_stock' => 15,
+                                            'initial_price' => 800,
+                                            'selling_price' => 999.99,
+                                            'type' => 'in',
+                                            'date' => '2024-02-01',
+                                        ],
+                                    ],
+                                ],
+                            ])
+                        );
+
+                        $operation->responses = [
+                            Response::make(200)
+                                ->setDescription('Storefront product detail')
+                                ->setContent('application/json', $schema),
+                            Response::make(404)
+                                ->setDescription('Product not found')
+                                ->setContent('application/json', Schema::fromType(
+                                    (new ObjectType)->example([
+                                        'success' => false,
+                                        'message' => 'Product not found',
+                                    ])
+                                )),
                         ];
                     }
                 }
@@ -884,6 +1026,7 @@ class AppServiceProvider extends ServiceProvider
                                                         'sku' => 'LTP-002',
                                                         'barcode' => '9876543210000',
                                                         'show' => 1,
+                                                        'show_in_storefront' => 1,
                                                     ],
                                                 ],
                                                 [
@@ -917,6 +1060,7 @@ class AppServiceProvider extends ServiceProvider
                                                         'sku' => 'LTP-001',
                                                         'barcode' => '1234567890123',
                                                         'show' => 1,
+                                                        'show_in_storefront' => 1,
                                                     ],
                                                 ],
                                             ],
@@ -1036,6 +1180,7 @@ class AppServiceProvider extends ServiceProvider
                                                     'sku' => 'LTP-002',
                                                     'barcode' => '9876543210000',
                                                     'show' => 1,
+                                                    'show_in_storefront' => 1,
                                             ],
                                         ],
                                             [
@@ -1069,6 +1214,7 @@ class AppServiceProvider extends ServiceProvider
                                                     'sku' => 'LTP-001',
                                                     'barcode' => '1234567890123',
                                                     'show' => 1,
+                                                    'show_in_storefront' => 1,
                                             ],
                                         ],
                                         ],

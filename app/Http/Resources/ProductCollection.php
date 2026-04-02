@@ -23,6 +23,7 @@ class ProductCollection extends JsonResource
             'sku' => $this->sku,
             'barcode' => $this->barcodes()->primary()->active()->value('code'),
             'show' => $this->show,
+            'show_in_storefront' => $this->show_in_storefront,
             'stocks' => $this->whenLoaded('stocks'),
         ];
     }

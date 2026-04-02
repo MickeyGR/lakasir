@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\Tenants\Storefront;
 use App\Filters\ComparisonFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SearchFields;
-use App\Http\Requests\Tenants\Master\ProductIndexRequest;
 use App\Http\Resources\ProductCollection;
 use App\Models\Tenants\Product;
+use App\Http\Requests\Tenants\Storefront\ProductIndexRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -55,7 +55,8 @@ class ProductController extends Controller
      *         hero_images: string,
      *         sku: string,
      *         barcode: ?string,
-     *         show: int
+     *         show: int,
+     *         show_in_storefront: int
      *       }
      *     ],
      *     links: array{first: ?string, prev: ?string, next: ?string},
@@ -113,6 +114,7 @@ class ProductController extends Controller
      *     sku: string,
      *     barcode: ?string,
      *     show: int,
+     *     show_in_storefront: int,
      *     stocks: array[]
      *   },
      *   message: ?string

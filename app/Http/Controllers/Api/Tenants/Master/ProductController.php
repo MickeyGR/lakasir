@@ -50,6 +50,7 @@ class ProductController extends Controller
                 'category.name',
                 'unit',
                 'show',
+                'show_in_storefront',
                 ...ComparisonFilter::setFilters('stock', ['gt', 'ge', 'lt', 'le', 'eq', 'ne']),
                 AllowedFilter::custom('global', new SearchFields, 'name,sku,barcodes.code'),
             ])

@@ -223,6 +223,14 @@ trait HasProductForm
             });
     }
 
+    public function generateStorefrontVisibilityFormComponent(): Checkbox
+    {
+        return Checkbox::make('show_in_storefront')
+            ->label(__('Visible in storefront'))
+            ->helperText(__('Disable this to keep the product sellable in POS but hidden from storefront.'))
+            ->default(true);
+    }
+
     public function generateExpiredFormComponent()
     {
         return DatePicker::make('expired_at')

@@ -130,6 +130,9 @@ class ProductResource extends Resource
                     ->toggleable()
                     ->visible(Feature::active(ProductStock::class))
                     ->translateLabel(),
+                ToggleColumn::make('show_in_storefront')
+                    ->label(__('Storefront'))
+                    ->toggleable(),
             ])
             ->searchPlaceholder(__('Search (SKU, name, barcode)'))
             ->filters([
@@ -144,6 +147,12 @@ class ProductResource extends Resource
                     ->options([
                         0 => __('Inactive'),
                         1 => __('Active'),
+                    ]),
+                SelectFilter::make('show_in_storefront')
+                    ->label(__('Storefront'))
+                    ->options([
+                        0 => __('Hidden'),
+                        1 => __('Visible'),
                     ]),
                 Tables\Filters\TrashedFilter::make(),
             ])
@@ -200,6 +209,7 @@ class ProductResource extends Resource
             $this->generateTypeFormComponent()
                 ->columnSpan(1),
             $this->generateNonStockFormComponent(),
+            $this->generateStorefrontVisibilityFormComponent(),
         ];
     }
 
@@ -234,6 +244,13 @@ class ProductResource extends Resource
                 })
                 ->color('primary')
                 ->translateLabel(),
+            Infolists\Components\TextEntry::make('show_in_storefront')
+                ->label(__('Storefront'))
+                ->badge()
+                ->getStateUsing(function (Product $product) {
+                    return $product->show_in_storefront ? __('Visible') : __('Hidden');
+                })
+                ->color(fn (string $state): string => $state === __('Visible') ? 'success' : 'gray'),
             Infolists\Components\TextEntry::make('unit')
                 ->translateLabel(),
             Infolists\Components\TextEntry::make('initial_price')

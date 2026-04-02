@@ -36,6 +36,7 @@ class ProductIndexRequest extends FormRequest
             'filter.type' => ['string', 'nullable'],
             'filter.unit' => ['string', 'nullable'],
             'filter.show' => ['boolean', 'nullable'],
+            'filter.show_in_storefront' => ['boolean', 'nullable'],
             'filter.stock' => ['array', 'nullable'], // For comparison filters
         ];
     }

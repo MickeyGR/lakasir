@@ -34,6 +34,8 @@ class ProductRequest extends FormRequest
 
     public function rules(): array
     {
+        $hasStorefrontVisibility = $this->has('show_in_storefront');
+
         if ($this->method() == 'DELETE') {
             return [];
         }
@@ -41,6 +43,12 @@ class ProductRequest extends FormRequest
         if (! feature(ProductStock::class)) {
             $this->merge([
                 'is_non_stock' => true,
+            ]);
+        }
+
+        if (! $this->isMethod('put') && ! $hasStorefrontVisibility) {
+            $this->merge([
+                'show_in_storefront' => true,
             ]);
         }
 
@@ -66,6 +74,9 @@ class ProductRequest extends FormRequest
                 'type' => $this->filled('type') ? $this->type : $product->type,
                 'hero_images_url' => $this->filled('hero_images_url') ? $this->hero_images_url : $product->hero_images[0] ?? '',
                 'is_non_stock' => $this->filled('is_non_stock') ? $this->is_non_stock : $product->is_non_stock,
+                'show_in_storefront' => $hasStorefrontVisibility
+                    ? $this->boolean('show_in_storefront')
+                    : $product->show_in_storefront,
             ]);
         }
 
@@ -83,6 +94,7 @@ class ProductRequest extends FormRequest
             'type' => ['required', Rule::in('product', 'service')],
             'hero_images_url' => ['nullable', 'string'],
             'is_non_stock' => ['boolean', 'required'],
+            'show_in_storefront' => ['boolean', 'required'],
             'expired' => $requireExpiredOnCreate
                 ? ['required', 'date', 'after_or_equal:now']
                 : ['nullable', 'date', 'after_or_equal:now'],
