@@ -11,6 +11,7 @@ use App\Tenant;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use Spatie\Permission\PermissionRegistrar;
 use Stancl\Tenancy\Exceptions\DomainOccupiedByOtherTenantException;
 use Stancl\Tenancy\Exceptions\TenantDatabaseAlreadyExistsException;
@@ -57,15 +58,9 @@ class RegisterTenant
 
             $user->notify(new DomainCreated());
 
-            Artisan::call('db:seed', [
-                '--class' => 'PermissionSeeder',
-            ]);
-            Artisan::call('db:seed', [
-                '--class' => 'PaymentMethodSeeder',
-            ]);
-            Artisan::call('db:seed', [
-                '--class' => 'CategorySeeder',
-            ]);
+            $this->seedTenantData('PermissionSeeder');
+            $this->seedTenantData('PaymentMethodSeeder');
+            $this->seedTenantData('CategorySeeder');
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
             $adminRole = TenantRole::firstOrCreate([
@@ -118,5 +113,17 @@ class RegisterTenant
         $identifier = $name ?: 'this tenant';
 
         return "A tenant database for '{$identifier}' already exists. If this is your store, reconnect it from the central tenant registry instead of registering it again.";
+    }
+
+    private function seedTenantData(string $seederClass): void
+    {
+        $exitCode = Artisan::call('db:seed', [
+            '--class' => $seederClass,
+            '--force' => true,
+        ]);
+
+        if ($exitCode !== 0) {
+            throw new RuntimeException("Failed seeding tenant with {$seederClass}: ".trim(Artisan::output()));
+        }
     }
 }

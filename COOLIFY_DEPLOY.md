@@ -148,7 +148,48 @@ Crear estos registros:
 
 Para la primera prueba se puede dejar en `DNS only`.
 
-## 7. Primer deploy
+## 7. Routing SaaS en Coolify
+
+Si una sola app debe responder tanto al dominio central como a todos los subdominios de tenants, no basta con el DNS wildcard. La app debe capturar:
+
+- `pos.atokatl.work`
+- `*.pos.atokatl.work`
+
+En la aplicación de Coolify:
+
+- `Configuration`
+- `Container Labels`
+
+Reemplazar las labels `traefik.*` autogeneradas por un bloque manual como este:
+
+```text
+traefik.enable=true
+traefik.http.middlewares.gzip.compress=true
+traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+traefik.http.routers.lakasir-pos-http.entryPoints=http
+traefik.http.routers.lakasir-pos-http.middlewares=redirect-to-https
+traefik.http.routers.lakasir-pos-http.rule=Host(`pos.atokatl.work`) || HostRegexp(`^.+\.pos\.atokatl\.work$`)
+traefik.http.routers.lakasir-pos-http.service=lakasir-pos
+
+traefik.http.routers.lakasir-pos-https.entryPoints=https
+traefik.http.routers.lakasir-pos-https.middlewares=gzip
+traefik.http.routers.lakasir-pos-https.rule=Host(`pos.atokatl.work`) || HostRegexp(`^.+\.pos\.atokatl\.work$`)
+traefik.http.routers.lakasir-pos-https.service=lakasir-pos
+traefik.http.routers.lakasir-pos-https.tls=true
+traefik.http.routers.lakasir-pos-https.tls.certresolver=letsencrypt
+
+traefik.http.services.lakasir-pos.loadbalancer.server.port=80
+```
+
+Después:
+
+- Guardar
+- `Redeploy`
+
+Si los tenants se crean pero al abrir `demoatokatl.pos.atokatl.work` aparece `no available server`, casi seguro falta este paso.
+
+## 8. Primer deploy
 
 Después de:
 
@@ -165,7 +206,7 @@ Prueba inicial:
 
 Si todo está bien, la app ya arrancó correctamente en el dominio central.
 
-## 8. Migraciones centrales
+## 9. Migraciones centrales
 
 Una vez que `/up` responda, correr:
 
@@ -175,7 +216,107 @@ php artisan migrate --force
 
 Esto crea las tablas centrales como `tenants` y `domains`.
 
-## 9. Registrar el primer tenant
+## 10. Wildcard SSL con Cloudflare y Traefik
+
+Si el navegador sigue mostrando `No seguro`, todavía falta emitir un certificado wildcard para:
+
+- `pos.atokatl.work`
+- `*.pos.atokatl.work`
+
+Esto se configura en:
+
+- `Servers`
+- `localhost`
+- `Proxy`
+- `Configuration`
+
+### 10.1. Crear token de Cloudflare
+
+Ir a:
+
+- `Cloudflare`
+- `My Profile`
+- `API Tokens`
+- `Create Token`
+
+Permisos recomendados:
+
+- `Zone -> DNS -> Edit`
+- `Zone -> Zone -> Read`
+
+Recursos:
+
+- `Include -> Specific zone -> atokatl.work`
+
+Si el mismo proxy de Coolify ya emite certificados para otras zonas, por ejemplo `nicacomputers.com`, lo correcto es crear **un solo token** con acceso a todas las zonas que ese proxy va a administrar.
+
+Ejemplo:
+
+- `atokatl.work`
+- `nicacomputers.com`
+
+No usar:
+
+- `Global API Key`
+- `Origin CA Key`
+
+### 10.2. Editar el YAML del proxy
+
+En el YAML de `services.traefik`, agregar o actualizar:
+
+```yaml
+environment:
+  - CF_DNS_API_TOKEN=REEMPLAZAR
+```
+
+En `command:` debe existir:
+
+```yaml
+- '--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare'
+- '--certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=0'
+- '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
+```
+
+En `labels:` agregar:
+
+```yaml
+- traefik.http.routers.traefik.tls.certresolver=letsencrypt
+- traefik.http.routers.traefik.tls.domains[0].main=pos.atokatl.work
+- traefik.http.routers.traefik.tls.domains[0].sans=*.pos.atokatl.work
+```
+
+Si el mismo proxy ya tiene otro wildcard, por ejemplo:
+
+```yaml
+- traefik.http.routers.traefik.tls.domains[0].main=pos.nicacomputers.com
+- traefik.http.routers.traefik.tls.domains[0].sans=*.pos.nicacomputers.com
+```
+
+entonces agregar el nuevo como segundo bloque:
+
+```yaml
+- traefik.http.routers.traefik.tls.domains[1].main=pos.atokatl.work
+- traefik.http.routers.traefik.tls.domains[1].sans=*.pos.atokatl.work
+```
+
+También confirmar:
+
+```yaml
+- coolify.proxy=true
+```
+
+Después:
+
+- Guardar
+- `Restart Proxy`
+
+Si la emisión falla muy rápido, probar con:
+
+```yaml
+- '--certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=30'
+```
+
+## 11. Registrar el primer tenant
 
 Abrir:
 
@@ -187,7 +328,7 @@ Primer tenant sugerido:
 - dominio esperado: `demoatokatl.pos.atokatl.work`
 - base esperada: `lakasir_demoatokatl`
 
-## 10. Problemas comunes
+## 12. Problemas comunes
 
 ### Error 500 en `/up`
 
@@ -227,8 +368,40 @@ Confirmar:
 - `A pos` creado
 - `A *.pos` creado
 - tenant registrado en la app
+- labels de Traefik configuradas para `HostRegexp`
 
-## 11. Resumen mínimo
+Si al abrir el tenant aparece:
+
+```text
+no available server
+```
+
+el problema no es el tenant ni Cloudflare: falta el routing wildcard en la app de Coolify.
+
+### El tenant abre pero listas como permisos, categorías o métodos de pago están vacías
+
+Eso indica que el tenant fue creado, pero sus seeders no corrieron correctamente.
+
+Verificar el código de registro del tenant y, para reparar un tenant existente, correr:
+
+```bash
+php artisan tenants:seed --tenants=demoatokatl --class=PermissionSeeder
+php artisan tenants:seed --tenants=demoatokatl --class=PaymentMethodSeeder
+php artisan tenants:seed --tenants=demoatokatl --class=CategorySeeder
+```
+
+Si el proyecto corre en producción, los `db:seed` del flujo de creación deben usar `--force`.
+
+### Un proxy ya sirve varios dominios
+
+Si el mismo proxy de Coolify ya emite certificados para otra zona:
+
+- no crear tokens separados y luego alternarlos
+- usar un solo `CF_DNS_API_TOKEN`
+- darle acceso a todas las zonas que ese proxy gestiona
+- agregar un índice nuevo en `tls.domains[n]` por cada wildcard extra
+
+## 13. Resumen mínimo
 
 Orden recomendado:
 
@@ -238,7 +411,11 @@ Orden recomendado:
 4. Configurar variables.
 5. Montar CA de MySQL con `File Mount`.
 6. Crear DNS `pos` y `*.pos` en Cloudflare.
-7. Deploy.
-8. Probar `/up`.
-9. Ejecutar `php artisan migrate --force`.
-10. Registrar `demoatokatl`.
+7. Configurar labels SaaS en la app para capturar `pos` y `*.pos`.
+8. Deploy.
+9. Probar `/up`.
+10. Ejecutar `php artisan migrate --force`.
+11. Crear token de Cloudflare para DNS challenge.
+12. Configurar wildcard SSL en el proxy de Coolify.
+13. Reiniciar proxy.
+14. Registrar `demoatokatl`.

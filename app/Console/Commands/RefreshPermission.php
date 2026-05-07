@@ -13,6 +13,7 @@ class RefreshPermission extends Command
     {
         Artisan::call('db:seed', [
             '--class' => 'PermissionSeeder',
+            '--force' => true,
         ]);
     }
 }
