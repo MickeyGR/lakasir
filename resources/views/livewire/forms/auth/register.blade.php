@@ -8,6 +8,13 @@
         <form>
           {{ $this->form }}
         </form>
+        <div
+          wire:loading.flex
+          wire:target="create"
+          class="mt-4 items-center justify-center text-sm font-medium text-slate-500"
+        >
+          Creating tenant, database and initial setup...
+        </div>
         <x-filament-actions::modals />
       </div>
     </div>

@@ -101,9 +101,16 @@ class RegisterTenantForm extends Component implements HasForms
                                     <button
                                         type="button"
                                         wire:click="create"
+                                        wire:loading.attr="disabled"
+                                        wire:target="create"
                                         class="register-wizard-submit"
                                     >
-                                        Submit
+                                        <span wire:loading.remove wire:target="create">
+                                            Submit
+                                        </span>
+                                        <span wire:loading wire:target="create">
+                                            Creating store...
+                                        </span>
                                     </button>
                                   BLADE))),
             ])
