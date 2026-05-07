@@ -31,3 +31,40 @@
     transform: translateY(0);
   }
 }
+
+.register-wizard-next,
+.register-wizard-submit {
+  min-width: 7rem;
+  background-color: #ea580c !important;
+  color: #fff !important;
+}
+
+.register-wizard-next:hover,
+.register-wizard-submit:hover {
+  background-color: #c2410c !important;
+}
+
+.register-wizard-next:disabled,
+.register-wizard-submit:disabled {
+  background-color: #fdba74 !important;
+  color: #fff !important;
+  opacity: 1 !important;
+}
+
+.register-wizard-previous {
+  min-width: 7rem;
+  border: 1px solid #d1d5db !important;
+  background-color: #fff !important;
+  color: #374151 !important;
+}
+
+.register-wizard-previous:hover {
+  background-color: #f9fafb !important;
+}
+
+.register-wizard-previous:disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+  opacity: 1 !important;
+}

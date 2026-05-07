@@ -4,6 +4,7 @@ namespace App\Livewire\Forms\Auth;
 
 use App\Rules\Domain;
 use App\Services\RegisterTenant;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard;
@@ -89,14 +90,21 @@ class RegisterTenantForm extends Component implements HasForms
                         ])
                         ->icon('heroicon-o-globe-alt'),
                 ])
+                    ->nextAction(fn (Action $action) => $action->extraAttributes([
+                        'class' => 'register-wizard-next',
+                    ]))
+                    ->previousAction(fn (Action $action) => $action->extraAttributes([
+                        'class' => 'register-wizard-previous',
+                    ]))
                     ->submitAction(new HtmlString(
                         Blade::render(<<<'BLADE'
-                                    <x-filament::button
-                                        size="sm"
+                                    <button
+                                        type="button"
                                         wire:click="create"
+                                        class="register-wizard-submit"
                                     >
                                         Submit
-                                    </x-filament::button>
+                                    </button>
                                   BLADE))),
             ])
             ->statePath('data');
