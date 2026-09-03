@@ -120,9 +120,11 @@ class RegisterTenantForm extends Component implements HasForms
     public function create(RegisterTenant $registerTenant): void
     {
         $data = $this->form->getState();
+        $domainName = str_replace('.' . config('tenancy.central_domains')[0], '', strtolower($data['domain']));
+
         $data = array_merge($data, [
-            'name' => strtolower($data['domain']),
-            'domain' => strtolower($data['domain'].'.'.config('tenancy.central_domains')[0]),
+            'name' => $domainName,
+            'domain' => $domainName . '.' . config('tenancy.central_domains')[0],
         ]);
 
         try {
@@ -139,7 +141,7 @@ class RegisterTenantForm extends Component implements HasForms
             report($e);
 
             throw ValidationException::withMessages([
-                'data.domain' => ['Tenant could not be created right now. Please try another domain or contact support if this store already exists.'],
+                'data.domain' => [$e->getMessage()],
             ]);
         }
 

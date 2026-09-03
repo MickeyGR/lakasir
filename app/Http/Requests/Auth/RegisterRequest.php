@@ -26,18 +26,15 @@ class RegisterRequest extends FormRequest
      */
     public function rules()
     {
-        $domain = explode('.', $this->domain);
-        if (count($domain) > 2) {
-            $this->merge([
-                'name' => strtolower($domain[0]),
-                'domain' => strtolower($this->domain),
-            ]);
-        } else {
-            $this->merge([
-                'name' => strtolower($this->domain),
-                'domain' => strtolower($this->domain).'.'.config('tenancy.central_domains')[0],
-            ]);
-        }
+        $domainStr = strtolower($this->domain);
+        $centralDomain = config('tenancy.central_domains')[0];
+
+        $cleanDomain = str_replace('.' . $centralDomain, '', $domainStr);
+
+        $this->merge([
+            'name' => $cleanDomain,
+            'domain' => $cleanDomain . '.' . $centralDomain,
+        ]);
 
         return [
             'domain' => ['required', 'string', 'max:255', 'unique:domains', new Domain],
@@ -51,16 +48,14 @@ class RegisterRequest extends FormRequest
     public function register(): Tenant
     {
         try {
-            $tenant = $this->registerTenant->create($this->all());
-
-            return $tenant;
+            return $this->registerTenant->create($this->all());
         } catch (ValidationException $e) {
             throw $e;
         } catch (Throwable $e) {
             report($e);
 
             throw ValidationException::withMessages([
-                'domain' => ['Tenant could not be created right now. Please choose another domain or contact support if this store already exists.'],
+                'domain' => [$e->getMessage()],
             ]);
         }
     }
